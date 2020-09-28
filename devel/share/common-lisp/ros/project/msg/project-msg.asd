@@ -1,0 +1,21 @@
+
+(cl:in-package :asdf)
+
+(defsystem "project-msg"
+  :depends-on (:roslisp-msg-protocol :roslisp-utils )
+  :components ((:file "_package")
+    (:file "arduino_msg" :depends-on ("_package_arduino_msg"))
+    (:file "_package_arduino_msg" :depends-on ("_package"))
+    (:file "deg_msg" :depends-on ("_package_deg_msg"))
+    (:file "_package_deg_msg" :depends-on ("_package"))
+    (:file "gps_msg" :depends-on ("_package_gps_msg"))
+    (:file "_package_gps_msg" :depends-on ("_package"))
+    (:file "gyro_msg" :depends-on ("_package_gyro_msg"))
+    (:file "_package_gyro_msg" :depends-on ("_package"))
+    (:file "joystick_msg" :depends-on ("_package_joystick_msg"))
+    (:file "_package_joystick_msg" :depends-on ("_package"))
+    (:file "motor_msg" :depends-on ("_package_motor_msg"))
+    (:file "_package_motor_msg" :depends-on ("_package"))
+    (:file "position_msg" :depends-on ("_package_position_msg"))
+    (:file "_package_position_msg" :depends-on ("_package"))
+  ))

@@ -1,0 +1,11 @@
+<launch>
+	<param name="/joystick_frq" type="double" value="10.0" />
+	<param name="/offset" type="int" value="-10" />
+	<param name="/turning" type="bool" value="False" />
+
+	<node name="gps_reader" pkg="project" type="gps_reader.py" output="screen" />
+	<node name="image_pub" pkg="project" type="imagepub.py" output="screen" />
+	<node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
+	<node name="control" pkg="project" type="control.py" output="screen" />
+	<!--node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" /-->
+</launch>

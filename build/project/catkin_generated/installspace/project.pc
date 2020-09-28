@@ -1,0 +1,8 @@
+prefix=/home/isp/Desktop/workspace/install
+
+Name: project
+Description: Description of project
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: roscpp rospy std_msgs message_runtime

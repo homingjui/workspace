@@ -1,0 +1,5 @@
+<launch>
+	<node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" />
+	<node name="tcp_sender" pkg="project" type="tcp_sender.py" output="screen" />
+	<node name="gps_reader" pkg="project" type="gps_reader.py" output="screen" />
+</launch>

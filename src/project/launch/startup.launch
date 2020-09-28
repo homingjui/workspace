@@ -1,0 +1,8 @@
+<launch>
+	<param name="/joystick_frq" type="double" value="10.0" />
+	<param name="/offset" type="int" value="-10" />
+	<!--node name="joystick_monitor" pkg="project" type="joystick_monitor.py" output="screen" /-->
+	<node name="motion" pkg="project" type="motion.py" output="screen" />
+	<!--node name="gps_reader" pkg="project" type="gps_reader.py" output="screen" /-->
+	<node name="acc_monitor" pkg="project" type="acc_monitor.py" output="screen" />
+</launch>

@@ -1,0 +1,2 @@
+set(project_MESSAGE_FILES "/home/isp/Desktop/workspace/src/project/msg/joystick_msg.msg;/home/isp/Desktop/workspace/src/project/msg/gps_msg.msg;/home/isp/Desktop/workspace/src/project/msg/gyro_msg.msg;/home/isp/Desktop/workspace/src/project/msg/deg_msg.msg;/home/isp/Desktop/workspace/src/project/msg/position_msg.msg;/home/isp/Desktop/workspace/src/project/msg/arduino_msg.msg;/home/isp/Desktop/workspace/src/project/msg/motor_msg.msg")
+set(project_SERVICE_FILES "/home/isp/Desktop/workspace/src/project/srv/my_srv.srv")

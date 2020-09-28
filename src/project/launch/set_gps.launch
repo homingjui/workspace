@@ -1,0 +1,3 @@
+<launch>
+	<node name="gps_reader" pkg="project" type="gps_reader.py" output="screen" />
+</launch>

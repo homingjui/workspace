@@ -1,0 +1,2 @@
+project
+-DCATKIN_DEVEL_PREFIX=/home/isp/Desktop/workspace/devel -DCMAKE_INSTALL_PREFIX=/home/isp/Desktop/workspace/install -G Unix Makefiles
