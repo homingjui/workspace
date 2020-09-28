@@ -7,5 +7,5 @@
 	<node name="image_pub" pkg="project" type="imagepub.py" output="screen" />
 	<node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
 	<node name="control" pkg="project" type="control.py" output="screen" />
-	<!--node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" /-->
+	<node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" />
 </launch>
