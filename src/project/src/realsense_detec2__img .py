@@ -14,6 +14,38 @@ import jetson.utils
 import argparse
 import sys
 
+parser = argparse.ArgumentParser()
+
+parser.add_argument("input_URI", type=str, default="", nargs='?')
+parser.add_argument("output_URI", type=str, default="", nargs='?')
+parser.add_argument("--overlay", type=str, default="box,labels,conf")
+parser.add_argument("--threshold", type=float, default=0.5)
+parser.add_argument("--network", type=str, default="facenet-120")
+parser.add_argument("--camera", type=str, default="/dev/video2")
+
+
+is_headless = ["--headless"] if sys.argv[0].find('console.py') != -1 else [""]
+
+try:
+        opt = parser.parse_known_args()[0]
+except:
+        print("")
+        parser.print_help()
+        sys.exit(0)
+print(opt)
+print(sys.argv)
+sys.argv += ['--camera=/dev/video2']
+#sys.argv += ['--network=facenet-120']
+sys.argv += ['--threshold=0.1']
+
+# load the object detection network
+net = jetson.inference.detectNet(opt.network, sys.argv, opt.threshold)
+
+# create video sources & outputs
+#input = jetson.utils.videoSource(opt.input_URI, argv=sys.argv)
+#output = jetson.utils.videoOutput(opt.output_URI, argv=sys.argv+is_headless)
+
+
 colorlib = np.zeros((256*4,3), dtype=np.uint8)
 colorlib[1:256,0] = 255
 colorlib[256:256*2,0] = np.arange(255,-1,-1)
@@ -25,6 +57,10 @@ colorlib[256*3:256*4,2]= 255
 colorlib = (colorlib/50)*50
 RGB = []
 max_len = 0
+
+
+
+
 
 def publish_image(imgdata):
     image_temp=Image()
@@ -44,10 +80,10 @@ def getRGB(data):
     global RGB,detections
     RGB = np.frombuffer(data.data, dtype=np.uint8).reshape(data.height, data.width, -1) 
 
-    #img = cv2.cvtColor(RGB, cv2.COLOR_BGR2RGB)
-    #img = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA).astype(np.float32) 
-    #img = jetson.utils.cudaFromNumpy(img)
-    #detections = net.Detect(img, overlay=opt.overlay)
+    img = cv2.cvtColor(RGB, cv2.COLOR_BGR2RGB)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA).astype(np.float32) 
+    img = jetson.utils.cudaFromNumpy(img)
+    detections = net.Detect(img, overlay=opt.overlay)
     #img2 = jetson.utils.cudaToNumpy(img, 1280, 720, 4)
     #img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGBA2RGB).astype(np.uint8)
     #img2 = cv2.cvtColor(img2, cv2.COLOR_RGB2BGR)
@@ -75,9 +111,31 @@ def draw(data):
     color = (color/color.max())*1023
     color = color.astype(np.uint16)
 
+    
     img = np.zeros((data.height, data.width, 3), dtype=np.uint8)
 
     img[:,:,:]=[colorlib[i] for i in color]
+      
+    for detection in detections:
+        rospy.loginfo(detection)
+        detx = int(detection.Center[0])
+        dety = int(detection.Center[1])
+        topedge=int(detection.Top)
+        bottomedge=int(detection.Bottom)
+        center=int(detection.Center[0])
+        cv2.circle(RGB, (detx,dety), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[dety,detx]), 
+                    (detx,dety), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
+	
+        cv2.circle(RGB, (center,topedge), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[topedge,center]), 
+                    (center,topedge), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
+
+        cv2.circle(RGB, (center,bottomedge), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[bottomedge,center]), 
+                    (center,bottomedge), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
+       
+        
 
     y = int(data.width/2)
     x = int(data.height/2)+20
