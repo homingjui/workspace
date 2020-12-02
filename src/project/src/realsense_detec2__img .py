@@ -13,6 +13,9 @@ import jetson.utils
 
 import argparse
 import sys
+import math
+
+import os
 
 parser = argparse.ArgumentParser()
 
@@ -117,7 +120,7 @@ def draw(data):
     img[:,:,:]=[colorlib[i] for i in color]
       
     for detection in detections:
-        rospy.loginfo(detection)
+        #rospy.loginfo(detection)
         detx = int(detection.Center[0])
         dety = int(detection.Center[1])
         topedge=int(detection.Top)
@@ -127,15 +130,80 @@ def draw(data):
         cv2.putText(RGB, str(depth[dety,detx]), 
                     (detx,dety), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
 	
-        cv2.circle(RGB, (center,topedge), 5,(255, 255, 255), -1)
-        cv2.putText(RGB, str(depth[topedge,center]), 
-                    (center,topedge), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.circle(RGB, (center,topedge+10), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[topedge+10,center]), 
+                    (center,topedge+10), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
 
-        cv2.circle(RGB, (center,bottomedge), 5,(255, 255, 255), -1)
-        cv2.putText(RGB, str(depth[bottomedge,center]), 
-                    (center,bottomedge), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
-       
+        cv2.circle(RGB, (center,bottomedge-5), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[bottomedge-5,center]),
+                    (center,bottomedge-5), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
         
+        
+        if int(detection.ClassID) == 82 :
+            D=math.sqrt((depth[bottomedge-5,center])**2-(329)**2)
+            
+            
+            #objectdegree=42.5*((bottomedge-topedge)/480)
+            
+            left_degree=(math.atan(D/29))*(180/math.pi)
+            rospy.loginfo(depth[bottomedge-5,center])
+            rospy.loginfo(depth[topedge+55,center])
+            rospy.loginfo(depth[dety,detx])
+            #right_degree=90-left_degree
+            #if objectdegree == right_degree:
+            #    objectHeigh=math.sqrt((329)**2+(depth[topedge+10,center]-D)**2)
+            if D == depth[topedge+10,center]:
+                objectHeigh=329
+            #elif objectdegree < right_degree:
+                
+            #    top_degree=90-objectdegree-left_degree
+            #    h=(depth[topedge+10,center])*math.sin((math.pi/180)*top_degree)
+            #    d=(depth[topedge+10,center])*math.cos((math.pi/180)*top_degree)
+            #    x=d-D
+            #    objectHeigh=math.sqrt((329-h)**2+x**2)
+
+            #elif objectdegree > right_degree:
+                
+            #    top_degree=180-objectdegree-left_degree
+            #    h=(depth[topedge+10,center])*math.cos((math.pi/180)*top_degree)
+            #    d=(depth[topedge+10,center])*math.sin((math.pi/180)*top_degree)
+            #    x=d-D
+            #    objectHeigh=math.sqrt((329+h)**2+(x)**2)
+            if depth[topedge+5,center] > depth[dety,detx] :
+                h = math.sqrt((depth[topedge+10,center])**2-(D)**2)
+                objectHeigh=329+h
+                a=1
+            elif depth[topedge+5,center] < depth[dety,detx] and depth[topedge+5,center] > D:
+                h = math.sqrt((depth[topedge+5,center])**2-(D)**2)
+                objectHeigh=329+h
+                a=2
+            elif depth[topedge+5,center] < depth[dety,detx] :
+                h = math.sqrt((depth[topedge+10,center])**2-(D)**2)
+                objectHeigh=329-h
+                a=3
+           
+            rospy.loginfo(detection)
+            rospy.loginfo(D)
+            rospy.loginfo(a)
+            #rospy.loginfo(objectdegree)
+            #rospy.loginfo(left_degree)
+            #rospy.loginfo(right_degree)
+            #rospy.loginfo(top_degree)
+            rospy.loginfo(h)
+            #rospy.loginfo(d)
+            #rospy.loginfo(x)
+            rospy.loginfo(objectHeigh)
+            
+            f2=open('/home/isp/Desktop/tmp.txt','r+')
+            f2.read()
+            
+            f2.write(str(depth[topedge+5,center])+' '+str(depth[bottomedge-5,center])+' '+str(depth[dety,detx])+' '+str(D)+' '+str(objectHeigh)+'\n')
+            #f2.write(str(objectHeigh))
+            f2.close()
+
+            cv2.putText(RGB,'Heigh='+str(objectHeigh),(detx+20,dety+20),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)    
+    
+
 
     y = int(data.width/2)
     x = int(data.height/2)+20

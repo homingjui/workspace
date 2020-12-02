@@ -1,0 +1,3 @@
+rosservice call /write_state /home/isp/Desktop/workspace/src/project/src/maps/test.pbstream
+
+-load_state_filename /home/isp/Desktop/workspace/src/project/src/maps/test.pbstream

@@ -8,6 +8,8 @@ from tf2_msgs.msg import TFMessage
 import cv2
 import numpy as np
 import math
+from scipy.spatial.transform import Rotation
+
 
 def publish_image(imgdata):
     image_temp=Image()
@@ -24,12 +26,19 @@ def publish_image(imgdata):
     img_pub.publish(image_temp)
 
 def update_pos(data):
-    global now_x,now_y,now_ro
+    global now_x,now_y,xyz
     tf = data.transforms[0]
     now_x = tf.transform.translation.x
     now_y = tf.transform.translation.y
-    now_ro = tf.transform.rotation.z
-    draw()
+    tfx = tf.transform.rotation.x
+    tfy = tf.transform.rotation.y
+    tfz = tf.transform.rotation.z
+    tfw = tf.transform.rotation.w
+    #rospy.loginfo(tf)
+    rot = Rotation.from_quat([tfx, tfy, tfz, tfw])
+    xyz = rot.as_euler('xyz')
+    #rospy.loginfo(xyz)
+    #draw()
 
 def update_map(data):
     global slam_map,w,h,res,map_pos
@@ -40,11 +49,19 @@ def update_map(data):
     map_pos = data.info.origin.position
 
 def update_scan(data):
+    global len_per_ndeg,angle_min,angle_n
     header = data.header
     ranges = data.ranges
-    rospy.loginfo(header)
-    rospy.loginfo(len(ranges))
-    rospy.loginfo((-data.angle_min+data.angle_max)/data.angle_increment)
+    #rospy.loginfo(header)
+    #rospy.loginfo(len(ranges))
+    len_per_deg = ranges[::4]
+    #rospy.loginfo(len(len_per_deg))
+    angle_n = 15
+    len_per_ndeg = len_per_deg[::angle_n]
+    #rospy.loginfo(len(len_per_45deg))
+    angle_min = data.angle_min
+    #rospy.loginfo(angle_min)
+    draw()
 
 
 #angle_min: -3.1241390705108643
@@ -57,7 +74,7 @@ def update_scan(data):
 #ranges:
 
 def draw():
-    rospy.loginfo(np.shape(slam_map))
+    #rospy.loginfo(np.shape(slam_map))
     
     map_x = -map_pos.x / res
     map_y = -map_pos.y / res
@@ -65,15 +82,28 @@ def draw():
     x = (-map_pos.x+now_x) / res
     y = (-map_pos.y+now_y) / res
 
-    dot_size = h/80
+    dot_size = h/100
     img = np.zeros((h, w, 3), dtype=np.uint8)
     img[:,:,:]=slam_map
     img[ (img[:,:,0]!=255) & (img[:,:,0]>=60)  ] = [255,0,0]
+    
+    rad_angle_n = angle_n*math.pi/180
+    for i in range(len(len_per_ndeg)):
+        if len_per_ndeg[i]==float("inf"):
+            continue
+        #rospy.loginfo(i)
+        #rospy.loginfo(len_per_ndeg[i])
+        cv2.line(img, (int(x),int(y)), 
+                 (int(x+(len_per_ndeg[i]*math.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
+                  int(y+(len_per_ndeg[i]*math.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
+                (200, 200, 0), int(1+(dot_size)/5))
+
     cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 0), -1)
     cv2.circle(img, (int(x),int(y)), int(1+dot_size),(0, 0, 255), -1)
-    cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*math.cos(now_ro)),
-                int(y-5*dot_size*math.sin(now_ro))),
+    cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*math.cos(xyz[2])),
+                int(y-5*dot_size*math.sin(xyz[2]))),
                 (0, 0, 200), int(1+(dot_size*2)/3))
+    
     publish_image(img)
 
 
