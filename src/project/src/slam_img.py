@@ -91,18 +91,20 @@ def draw():
     for i in range(len(len_per_ndeg)):
         if len_per_ndeg[i]==float("inf"):
             continue
-        #rospy.loginfo(i)
         #rospy.loginfo(len_per_ndeg[i])
+        scan_col = 0
+        if len_per_ndeg[i] < 1:
+            scan_col = 255
         cv2.line(img, (int(x),int(y)), 
                  (int(x+(len_per_ndeg[i]*math.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
                   int(y+(len_per_ndeg[i]*math.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
-                (200, 200, 0), int(1+(dot_size)/5))
+                  (scan_col, 255, 0), int(1+(dot_size)/5))
 
-    cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 0), -1)
+    cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 255), -1)
     cv2.circle(img, (int(x),int(y)), int(1+dot_size),(0, 0, 255), -1)
     cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*math.cos(xyz[2])),
                 int(y-5*dot_size*math.sin(xyz[2]))),
-                (0, 0, 200), int(1+(dot_size*2)/3))
+                (0, 0, 255), int(1+(dot_size*2)/3))
     
     publish_image(img)
 

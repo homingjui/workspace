@@ -17,7 +17,10 @@ import math
 
 import os
 
+myclassID = {0:"__background__", 1:"person", 2:"bicycle", 3:"car", 4:"motorcycle", 5:"airplane", 6:"bus", 7:"train", 8:"truck", 9:"boat", 10:"traffic light", 11:"fire hydrant", 12:"stop sign", 13:"parking meter", 14:"bench", 15:"bird", 16:"cat", 17:"dog", 18:"horse", 19:"sheep", 20:"cow", 21:"elephant", 22:"bear", 23:"zebra", 24:"giraffe", 25:"backpack", 26:"umbrella", 27:"handbag", 28:"tie", 29:"suitcase", 30:"frisbee", 31:"skis", 32:"snowboard", 33:"sports ball", 34:"kite", 35:"baseball bat", 36:"baseball glove", 37:"skateboard", 38:"surfboard", 39:"tennis racket", 40:"bottle", 41:"wine glass", 42:"cup", 43:"fork", 44:"knife", 45:"spoon", 46:"bowl", 47:"banana", 48:"apple", 49:"sandwich", 50:"orange", 51:"broccoli", 52:"carrot", 53:"hot dog", 54:"pizza", 55:"donut", 56:"cake", 57:"chair", 58:"couch", 59:"potted plant", 60:"bed", 61:"dining table", 62:"chair", 63:"tv", 64:"laptop", 65:"mouse", 66:"remote", 67:"keyboard", 68:"cell phone", 69:"microwave", 70:"oven", 71:"toaster", 72:"sink", 73:"refrigerator", 74:"book", 75:"clock", 76:"vase", 77:"scissors", 78:"teddy bear", 79:"hair drier", 80:"toothbrush",81:"",82:"",83:"",84:"",85:"",86:"",87:"",88:"",89:"",90:"",91:"",92:""}
+
 parser = argparse.ArgumentParser()
+
 
 parser.add_argument("input_URI", type=str, default="", nargs='?')
 parser.add_argument("output_URI", type=str, default="", nargs='?')
@@ -60,7 +63,6 @@ colorlib[256*3:256*4,2]= 255
 colorlib = (colorlib/50)*50
 RGB = []
 max_len = 0
-
 
 
 
@@ -118,9 +120,27 @@ def draw(data):
     img = np.zeros((data.height, data.width, 3), dtype=np.uint8)
 
     img[:,:,:]=[colorlib[i] for i in color]
-      
+    
+    def high_type(h_type,ID):
+            if h_type==1: #cam>obj
+                h = math.sqrt((depth[topedge+15,center])**2-(D)**2)
+                objectHeigh=339-h
+                
+            elif h_type==2: #cam<obj
+                h = math.sqrt((depth[topedge+15,center])**2-(D)**2)
+                objectHeigh=339+h
+            
+            cv2.putText(RGB,('Heigh='+str(objectHeigh)),(detx+20,dety+20),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)         
+            cv2.putText(RGB,('ID='+str(myclassID[ID])),(detx+40,dety+40),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)
+
+            rospy.loginfo(h_type)
+            rospy.loginfo(objectHeigh)
+            rospy.loginfo(h)
+            return objectHeigh
+	
+  
     for detection in detections:
-        #rospy.loginfo(detection)
+        rospy.loginfo(detection)
         detx = int(detection.Center[0])
         dety = int(detection.Center[1])
         topedge=int(detection.Top)
@@ -130,87 +150,48 @@ def draw(data):
         cv2.putText(RGB, str(depth[dety,detx]), 
                     (detx,dety), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
 	
-        cv2.circle(RGB, (center,topedge+10), 5,(255, 255, 255), -1)
-        cv2.putText(RGB, str(depth[topedge+10,center]), 
-                    (center,topedge+10), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.circle(RGB, (center,topedge+15), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[topedge+15,center]), (center,topedge+15), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
 
-        cv2.circle(RGB, (center,bottomedge-5), 5,(255, 255, 255), -1)
-        cv2.putText(RGB, str(depth[bottomedge-5,center]),
-                    (center,bottomedge-5), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
+        cv2.circle(RGB, (center,bottomedge-10), 5,(255, 255, 255), -1)
+        cv2.putText(RGB, str(depth[bottomedge-10,center]),(center,bottomedge-10), cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 255), 1, cv2.LINE_AA)
         
-        
-        if int(detection.ClassID) == 82 :
-            D=math.sqrt((depth[bottomedge-5,center])**2-(329)**2)
-            
-            
-            #objectdegree=42.5*((bottomedge-topedge)/480)
-            
-            left_degree=(math.atan(D/29))*(180/math.pi)
-            rospy.loginfo(depth[bottomedge-5,center])
-            rospy.loginfo(depth[topedge+55,center])
-            rospy.loginfo(depth[dety,detx])
-            #right_degree=90-left_degree
-            #if objectdegree == right_degree:
-            #    objectHeigh=math.sqrt((329)**2+(depth[topedge+10,center]-D)**2)
-            if D == depth[topedge+10,center]:
-                objectHeigh=329
-            #elif objectdegree < right_degree:
-                
-            #    top_degree=90-objectdegree-left_degree
-            #    h=(depth[topedge+10,center])*math.sin((math.pi/180)*top_degree)
-            #    d=(depth[topedge+10,center])*math.cos((math.pi/180)*top_degree)
-            #    x=d-D
-            #    objectHeigh=math.sqrt((329-h)**2+x**2)
-
-            #elif objectdegree > right_degree:
-                
-            #    top_degree=180-objectdegree-left_degree
-            #    h=(depth[topedge+10,center])*math.cos((math.pi/180)*top_degree)
-            #    d=(depth[topedge+10,center])*math.sin((math.pi/180)*top_degree)
-            #    x=d-D
-            #    objectHeigh=math.sqrt((329+h)**2+(x)**2)
-            if depth[topedge+5,center] > depth[dety,detx] :
-                h = math.sqrt((depth[topedge+10,center])**2-(D)**2)
-                objectHeigh=329+h
-                a=1
-            elif depth[topedge+5,center] < depth[dety,detx] and depth[topedge+5,center] > D:
-                h = math.sqrt((depth[topedge+5,center])**2-(D)**2)
-                objectHeigh=329+h
-                a=2
-            elif depth[topedge+5,center] < depth[dety,detx] :
-                h = math.sqrt((depth[topedge+10,center])**2-(D)**2)
-                objectHeigh=329-h
-                a=3
-           
-            rospy.loginfo(detection)
-            rospy.loginfo(D)
-            rospy.loginfo(a)
-            #rospy.loginfo(objectdegree)
-            #rospy.loginfo(left_degree)
-            #rospy.loginfo(right_degree)
-            #rospy.loginfo(top_degree)
-            rospy.loginfo(h)
-            #rospy.loginfo(d)
-            #rospy.loginfo(x)
-            rospy.loginfo(objectHeigh)
-            
-            f2=open('/home/isp/Desktop/tmp.txt','r+')
+        D=math.sqrt((depth[bottomedge-5,center])**2-(329)**2)
+        #rospy.loginfo(D)
+        #x=0
+        for i in range(topedge+20,bottomedge-10):
+            if depth[i,center] <= (D+30) and depth[i,center] >= (D-30) :
+                #x=x+1
+                h_type=2
+                break
+            else:
+                h_type=1
+        #if x==0: 
+        #    h_type=1
+        #else:
+        #    h_type=2
+        if int(detection.ClassID) == 44 :
+            ID=44
+            high_type(h_type,ID)
+            f2=open('/home/isp/Desktop/heigh_test/tmp.txt','r+')
             f2.read()
+
+            f2.write(str(depth[topedge+15,center])+' '+str(depth[bottomedge-10,center])+' '+str(depth[dety,detx])+' '+str(D)+' '+str(high_type(h_type,ID))+' '+str(detection.ClassID)+' '+'\n')
             
-            f2.write(str(depth[topedge+5,center])+' '+str(depth[bottomedge-5,center])+' '+str(depth[dety,detx])+' '+str(D)+' '+str(objectHeigh)+'\n')
-            #f2.write(str(objectHeigh))
-            f2.close()
-
-            cv2.putText(RGB,'Heigh='+str(objectHeigh),(detx+20,dety+20),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)    
-    
-
-
+            f2.close()            
+            
+                              
     y = int(data.width/2)
     x = int(data.height/2)+20
     rospy.loginfo(str(x)+" "+str(y))
     rospy.loginfo(depth[x,y])
     #rospy.loginfo(depth_img[x,y])
     cv2.circle(img, (y, x), 5,(255, 255, 255), 1)
+    #cv2.putText(RGB,str(depth[x,10]),(0,x),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)
+    #cv2.putText(RGB,str(depth[x,y*2-10]),(y*2-70,x),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)
+    #cv2.putText(RGB,str(depth[10,y]),(y,20),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)
+    #cv2.putText(RGB,str(depth[(x-20)*2-10,y]),(y,(x-20)*2),cv2.FONT_HERSHEY_SIMPLEX,1, (0,255,255), 1, cv2.LINE_AA)
+    cv2.line(RGB,(0,x),(y*2-1,x),5)
     img_pub = cv2.addWeighted(RGB,0.5,img,0.5,0)
     publish_image(img_pub)
 try:
