@@ -11,8 +11,14 @@
   <node pkg="timed_roslaunch" type="timed_roslaunch.sh"
     args="5 project slam_cartographer.launch"
     name="timed_roslaunch" />
+    
+  <param name="/offset" type="int" value="-10" />
+  <param name="/turning" type="bool" value="False" />
 
-  <!--node name="slam_img" pkg="project" type="slam_img.py" output="screen" /-->
+
+  <node name="slam_control" pkg="project" type="slam_control.py" output="screen" />
+  <node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
+  <node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" />
 
 </launch>
 

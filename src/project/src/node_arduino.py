@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import rospy
 from project.msg import arduino_msg
@@ -28,7 +28,8 @@ def motor(motor):
 
 def writeNumber(value):
     r.sleep()
-    bus.write_byte(address, value)
+    
+    bus.write_byte(address, int(value))
     
     return -1
 
@@ -78,9 +79,9 @@ try:
             if not check==[0,255]:
                 r.sleep()
                 readNumber()
-                rospy.loginfo(check)
+                rospy.loginfo("arduino setting")
                 continue
-            #rospy.loginfo(arduino)
+            #rospy.loginfo("arduino set ok")
             pub.publish(arduino)
         else:
             r.sleep()
@@ -88,49 +89,49 @@ try:
         #rospy.loginfo(motion)
         if motion['back']:
             persentvalu = int((255-speed)*persent)
-            writeNumber(01)
+            writeNumber("01")
             duty = max(0,min(speed+offset+persentvalu,255))
             #rospy.loginfo(persentvalu)
             writeNumber(duty)
-            writeNumber(10)
+            writeNumber("10")
             duty = max(0,min(speed-offset-persentvalu,255))
             writeNumber(duty)
             motion['back']=False
         elif motion['front']:
             #rospy.loginfo('front')
             persentvalu = int((255-speed)*persent)
-            writeNumber(10)
+            writeNumber("10")
             duty = max(0,min(speed+offset+persentvalu,255))
             writeNumber(duty)
-            writeNumber(01)
+            writeNumber("01")
             duty = max(0,min(speed-offset-persentvalu,255))
             writeNumber(duty)
             motion['front']=False
         elif motion['left']:
-            writeNumber(10)
+            writeNumber("10")
             writeNumber(speed)
-            writeNumber(10)
+            writeNumber("10")
             writeNumber(speed)
             motion['left']=False
         elif motion['right']:
-            writeNumber(01)
+            writeNumber("01")
             writeNumber(speed)
-            writeNumber(01)
+            writeNumber("01")
             writeNumber(speed)
             motion['right']=False
         elif motion['stop']:
             #rospy.loginfo("stop motor");
-            writeNumber(00)
-            writeNumber(0)
-            writeNumber(00)
-            writeNumber(0)
+            writeNumber("00")
+            writeNumber("0")
+            writeNumber("00")
+            writeNumber("0")
             motion['stop']=False
 
         r.sleep()
 
 except rospy.ROSInterruptException:
-    writeNumber(00)
-    writeNumber(0)
-    writeNumber(00)
-    writeNumber(0)
+    writeNumber("00")
+    writeNumber("0")
+    writeNumber("00")
+    writeNumber("0")
     ser.close()

@@ -45,23 +45,25 @@ def set_motor(deg):
         now_acc = the_acc
         rospy.loginfo("???"+str(now_acc)+" "+str(the_acc)+" "+str(my_turn))
         if my_turn > 0 and now_acc < abs(my_turn):
+            rospy.loginfo("a"+str(the_acc)+" "+str(my_turn))
             while  the_acc <= abs(my_turn) :
-                rospy.loginfo("a"+str(the_acc)+" "+str(my_turn))
+                continue
             my_turn = abs(my_turn)-now_acc
             now_acc = 360
             rospy.loginfo(">0!!!!")
         
         elif my_turn < 0 and 360-now_acc < abs(my_turn):
+            rospy.loginfo("b"+str(360-the_acc)+" "+str(my_turn))
             while  360-the_acc < abs(my_turn) :
-                rospy.loginfo("b"+str(360-the_acc)+" "+str(my_turn))
+                continue
             my_turn = abs(my_turn) - (360-now_acc)
             now_acc = 0
             rospy.loginfo("<0!!!")
 
-
         rospy.loginfo("???"+str(now_acc)+" "+str(the_acc)+" "+str(my_turn))
         while(abs(now_acc-the_acc) < abs(my_turn*0.7) ):
-            rospy.loginfo("!!!!"+str(now_acc)+" "+str(the_acc)+" "+str(abs(my_turn)))
+            #rospy.loginfo("!!!!"+str(now_acc)+" "+str(the_acc)+" "+str(abs(my_turn)))
+            continue
             pass
 
         rospy.loginfo(the_acc)
