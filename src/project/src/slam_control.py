@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from project.msg import deg_msg
+from project.msg import deg_msg,motor_msg
 from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import Image,LaserScan
 from std_msgs.msg import Header
@@ -13,7 +13,7 @@ from scipy.spatial.transform import Rotation
 import time
 
 
-rout = np.array([[0,0],[20,20],[40,0],[20,-20]])
+rout = np.array([[0,0],[1.1,1.1],[2.1,0],[1.1,-1.1]])
 for i in range(1,len(rout)):
     rout[i]=[rout[i,0]*np.cos(np.pi/2)-rout[i,1]*np.sin(np.pi/2),
              rout[i,0]*np.sin(np.pi/2)+rout[i,1]*np.cos(np.pi/2)]
@@ -21,11 +21,18 @@ for i in range(1,len(rout)):
 setup=np.array([False,False,False])
 
 def get_deg(vac1,vac2):
-    Lx=np.sqrt(vac1.dot(vac1))
-    Ly=np.sqrt(vac2.dot(vac2))
-    cos_ang=vac1.dot(vac2)/(Lx*Ly)
+    #Lx=np.sqrt(vac1.dot(vac1))
+    #Ly=np.sqrt(vac2.dot(vac2))
+        
+    norm = np.linalg.norm(vac1)*np.linalg.norm(vac2)
+    rho = np.arcsin(np.cross(vac1,vac2)/norm)
+    cos_ang= vac1.dot(vac2) / norm
+    
+    #rospy.loginfo(math.atan2(vac2[0]-vac1[0], vac2[1]-vac1[1]))
     ang=np.arccos(cos_ang)
-    ang2=ang*180/np.pi
+    if rho>0:
+        return -ang
+    #rospy.loginfo(ang)
     return ang
 
 def publish_image(imgdata):
@@ -113,8 +120,8 @@ def draw():
     rad_angle_n = angle_n*np.pi/180
 
     for i in range(len(rout)-1):
-        cv2.line(img, (int(map_x+rout[i,0]),int(map_y+rout[i,1])),
-                      (int(map_x+rout[i+1,0]),int(map_y+rout[i+1,1])),
+        cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
+                      (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),
                     (144, 144, 0), int(1+(dot_size)/5))
 
 
@@ -135,7 +142,7 @@ def draw():
     cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*np.cos(xyz[2])),
                 int(y-5*dot_size*np.sin(xyz[2]))),
                 (0, 0, 255), int(1+(dot_size*2)/3))
-    img = cv2.flip(img, 1)
+    #img = cv2.flip(img, 1)
     publish_image(img)
 
 
@@ -146,6 +153,8 @@ try:
     rospy.Subscriber('/map',OccupancyGrid,update_map)
     img_pub = rospy.Publisher('my_image_raw',Image,queue_size=1)
     pub_deg = rospy.Publisher('revise_deg', deg_msg, queue_size=10)
+    pub_mot = rospy.Publisher('auto_motion', motor_msg, queue_size=10)
+
     deg = deg_msg()
     #rate = rospy.wallRate(1) # 10hz
     rospy.loginfo("wait to start")
@@ -156,14 +165,26 @@ try:
     rospy.loginfo(setup)
     rospy.loginfo("done")
     
-    #rospy.set_param("/turning",True)
-    #deg = get_deg(np.array([0,10]),rout[1]-rout[0])
-    #pub_deg.publish(deg)
+    rospy.set_param("/turning",True)
+    deg = get_deg(np.array([-1,0]),rout[1]-rout[0])
+
+    pub_deg.publish(deg)
     
     rate = rospy.Rate(10)
     while not rospy.is_shutdown():
         rospy.loginfo(rout[1])
         rospy.loginfo((now_x,now_y))
+        rospy.loginfo(np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]))
+        deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[1]-rout[0])
+        rospy.loginfo(deg)
+        pub_deg.publish(deg)
+        if np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]) < 0.2 :
+            mymotor = motor_msg()
+            mymotor.way = 'stop'
+            pub_mot.publish(mymotor)
+            while not rospy.is_shutdown():
+                rospy.loginfo("finish!!")
+                rospy.sleep(2)
         draw()
         rate.sleep()
     rospy.spin()
