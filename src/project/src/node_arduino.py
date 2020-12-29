@@ -38,7 +38,7 @@ def readNumber():
 
 pub = rospy.Publisher('arduino', arduino_msg, queue_size=10)
 rospy.init_node('node_arduino')
-r = rospy.Rate(120)
+r = rospy.Rate(100)
 arduino = arduino_msg()
 check = [0,0]
 

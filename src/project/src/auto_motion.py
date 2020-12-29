@@ -63,6 +63,8 @@ def set_motor(deg):
         rospy.loginfo("???"+str(now_acc)+" "+str(the_acc)+" "+str(my_turn))
         while(abs(now_acc-the_acc) < abs(my_turn*0.7) ):
             #rospy.loginfo("!!!!"+str(now_acc)+" "+str(the_acc)+" "+str(abs(my_turn)))
+            if rospy.is_shutdown():
+                break
             continue
             pass
 

@@ -22,12 +22,10 @@ setup=np.array([False,False,False])
 
 def get_deg(vac1,vac2):
     #Lx=np.sqrt(vac1.dot(vac1))
-    #Ly=np.sqrt(vac2.dot(vac2))
-        
+    #Ly=np.sqrt(vac2.dot(vac2))        
     norm = np.linalg.norm(vac1)*np.linalg.norm(vac2)
     rho = np.arcsin(np.cross(vac1,vac2)/norm)
     cos_ang= vac1.dot(vac2) / norm
-    
     #rospy.loginfo(math.atan2(vac2[0]-vac1[0], vac2[1]-vac1[1]))
     ang=np.arccos(cos_ang)
     if rho>0:
@@ -75,21 +73,20 @@ def update_map(data):
     map_pos = data.info.origin.position
 
 def update_scan(data):
-    global len_per_ndeg,angle_min,angle_n
+    global len_per_ndeg,angle_min,angle_n,len_deg
     setup[2]=True
     header = data.header
     ranges = data.ranges
     #rospy.loginfo(header)
     #rospy.loginfo(len(ranges))
-    len_per_deg = ranges[::4]
+    len_deg = ranges[::4]
     #rospy.loginfo(len(len_per_deg))
     angle_n = 15
-    len_per_ndeg = len_per_deg[::angle_n]
+    len_per_ndeg = len_deg[::angle_n]
     #rospy.loginfo(len(len_per_45deg))
     angle_min = data.angle_min
     #rospy.loginfo(angle_min)
     #draw()
-
 
 #angle_min: -3.1241390705108643
 #angle_max: 3.1415927410125732
@@ -118,31 +115,50 @@ def draw():
     img[ (img[:,:,0]!=255) & (img[:,:,0]>=60)  ] = [255,0,0]
     
     rad_angle_n = angle_n*np.pi/180
+    
+    if rospy.get_param("/draw_rout"):
+        for i in range(len(rout)-1):
+            cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
+                          (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),
+                          (144, 144, 0), int(1+(dot_size)/5))
 
-    for i in range(len(rout)-1):
-        cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
-                      (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),
-                    (144, 144, 0), int(1+(dot_size)/5))
+    if rospy.get_param("/draw_scan_line"):
+        for i in range(len(len_per_ndeg)):
+            if len_per_ndeg[i]==float("inf"):
+                continue
+            #rospy.loginfo(len_per_ndeg[i])
+            scan_col = 0
+            if len_per_ndeg[i] < 1:
+                scan_col = 255
+            cv2.line(img, (int(x),int(y)), 
+                     (int(x+(len_per_ndeg[i]*np.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
+                      int(y+(len_per_ndeg[i]*np.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
+                      (scan_col, 255, 0), int(1+(dot_size)/5))
+
+    if rospy.get_param("/draw_scan_adge"):
+        #rospy.loginfo(len_deg)
+        for i in range(len(len_deg)):
+            if len_deg[i]==float("inf"):
+                continue
+            cv2.circle(img, (int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
+                             int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),
+                             1, (52, 207, 235), -1 )
 
 
-    #for i in range(len(len_per_ndeg)):
-        #if len_per_ndeg[i]==float("inf"):
-        #    continue
-        #rospy.loginfo(len_per_ndeg[i])
-        #scan_col = 0
-        #if len_per_ndeg[i] < 1:
-        #    scan_col = 255
-        #cv2.line(img, (int(x),int(y)), 
-        #         (int(x+(len_per_ndeg[i]*np.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
-        #          int(y+(len_per_ndeg[i]*np.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
-        #          (scan_col, 255, 0), int(1+(dot_size)/5))
-
-    cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 255), -1)
-    cv2.circle(img, (int(x),int(y)),int(1+dot_size),(0, 0, 255), -1)
-    cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*np.cos(xyz[2])),
-                int(y-5*dot_size*np.sin(xyz[2]))),
-                (0, 0, 255), int(1+(dot_size*2)/3))
-    #img = cv2.flip(img, 1)
+    if rospy.get_param("/draw_map_o"):
+        cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 255), -1)
+    
+    if rospy.get_param("/draw_car_o"):
+        cv2.circle(img, (int(x),int(y)),int(1+dot_size),(0, 0, 255), -1)
+    
+    if rospy.get_param("/draw_car_way"):
+        cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*np.cos(xyz[2])),
+                                        int(y-5*dot_size*np.sin(xyz[2]))),
+                 (0, 0, 255), int(1+(dot_size*2)/3) )
+    
+    if rospy.get_param("/img_flip"):
+        img = cv2.flip(img, 1)
+    
     publish_image(img)
 
 
@@ -170,15 +186,24 @@ try:
 
     pub_deg.publish(deg)
     
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(5)
+    now_dot = 0
     while not rospy.is_shutdown():
-        rospy.loginfo(rout[1])
-        rospy.loginfo((now_x,now_y))
-        rospy.loginfo(np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]))
-        deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[1]-rout[0])
-        rospy.loginfo(deg)
+        if rospy.get_param("/turning"):
+            rospy.loginfo("turning")
+            continue
+        #rospy.loginfo(rout[1])
+        #rospy.loginfo((now_x,now_y))
+        #rospy.loginfo(np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]))
+        deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-rout[now_dot])
         pub_deg.publish(deg)
-        if np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]) < 0.2 :
+        if np.linalg.norm([rout[now_dot+1,0]-now_x,rout[now_dot+1,1]-now_y]) < 0.2 :
+            now_dot += 1
+            rospy.set_param("/turning",True)
+            deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-rout[now_dot])
+            pub_deg.publish(deg)
+
+        if now_dot==len(rout)-1:
             mymotor = motor_msg()
             mymotor.way = 'stop'
             pub_mot.publish(mymotor)

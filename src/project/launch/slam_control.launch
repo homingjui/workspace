@@ -1,6 +1,6 @@
 <launch>
   <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
-  <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>
+  <param name="serial_port"         type="string" value="/dev/ttyUSB1"/>
   <param name="serial_baudrate"     type="int"    value="256000"/><!--A3 -->
   <param name="frame_id"            type="string" value="laser"/>
   <param name="inverted"            type="bool"   value="false"/>
@@ -15,6 +15,13 @@
   <param name="/offset" type="int" value="-10" />
   <param name="/turning" type="bool" value="False" />
 
+  <param name="/draw_map_o" type="bool" value="True" />
+  <param name="/draw_car_o" type="bool" value="True" />
+  <param name="/draw_car_way" type="bool" value="True" />
+  <param name="/draw_scan_line" type="bool" value="False" />
+  <param name="/draw_scan_adge" type="bool" value="True" />
+  <param name="/draw_rout" type="bool" value="True" />
+  <param name="/img_flip" type="bool" value="False" />
 
   <node name="slam_control" pkg="project" type="slam_control.py" output="screen" />
   <node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
