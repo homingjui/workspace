@@ -137,7 +137,7 @@ def draw():
                       (scan_col, 255, 0), int(1+(dot_size)/5))
             except OverflowError:
                 rospy.loginfo("get inf")
-                rospy.loginfo(len_per_ndeg[i]==float("inf"))
+                rospy.loginfo(len_per_ndeg[i])
 
     if rospy.get_param("/draw_scan_adge"):
         #rospy.loginfo(len_deg)
@@ -149,7 +149,7 @@ def draw():
                              int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),1, (52, 207, 235), -1 )
             except OverflowError:
                 rospy.loginfo("get inf")
-                rospy.loginfo(len_per_ndeg[i]==float("inf"))
+                rospy.loginfo(len_deg[i])
 
 
     if rospy.get_param("/draw_map_o"):
