@@ -13,7 +13,7 @@ from scipy.spatial.transform import Rotation
 import time
 
 
-rout = np.array([[0,0],[1.1,1.1],[2.1,0],[1.1,-1.1]])
+rout = np.array([[0,0],[0,2],[1.1,2],[1.1,0]])
 for i in range(1,len(rout)):
     rout[i]=[rout[i,0]*np.cos(np.pi/2)-rout[i,1]*np.sin(np.pi/2),
              rout[i,0]*np.sin(np.pi/2)+rout[i,1]*np.cos(np.pi/2)]
@@ -130,19 +130,26 @@ def draw():
             scan_col = 0
             if len_per_ndeg[i] < 1:
                 scan_col = 255
-            cv2.line(img, (int(x),int(y)), 
+            try:
+                cv2.line(img, (int(x),int(y)), 
                      (int(x+(len_per_ndeg[i]*np.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
                       int(y+(len_per_ndeg[i]*np.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
                       (scan_col, 255, 0), int(1+(dot_size)/5))
+            except OverflowError:
+                rospy.loginfo("get inf")
+                rospy.loginfo(len_per_ndeg[i]==float("inf"))
 
     if rospy.get_param("/draw_scan_adge"):
         #rospy.loginfo(len_deg)
         for i in range(len(len_deg)):
             if len_deg[i]==float("inf"):
                 continue
-            cv2.circle(img, (int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
-                             int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),
-                             1, (52, 207, 235), -1 )
+            try:
+                cv2.circle(img, (int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
+                             int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),1, (52, 207, 235), -1 )
+            except OverflowError:
+                rospy.loginfo("get inf")
+                rospy.loginfo(len_per_ndeg[i]==float("inf"))
 
 
     if rospy.get_param("/draw_map_o"):
@@ -186,7 +193,7 @@ try:
 
     pub_deg.publish(deg)
     
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(10)
     now_dot = 0
     while not rospy.is_shutdown():
         if rospy.get_param("/turning"):
@@ -197,7 +204,7 @@ try:
         #rospy.loginfo(np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]))
         deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-rout[now_dot])
         pub_deg.publish(deg)
-        if np.linalg.norm([rout[now_dot+1,0]-now_x,rout[now_dot+1,1]-now_y]) < 0.2 :
+        if np.linalg.norm([rout[now_dot+1,0]-now_x,rout[now_dot+1,1]-now_y]) < 0.3 :
             now_dot += 1
             rospy.set_param("/turning",True)
             deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-rout[now_dot])
