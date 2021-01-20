@@ -79,10 +79,10 @@ def update_scan(data):
     ranges = data.ranges
     #rospy.loginfo(header)
     #rospy.loginfo(len(ranges))
-    len_deg = ranges[::4]
+    len_deg = np.array(ranges[::4])
     #rospy.loginfo(len(len_per_deg))
-    angle_n = 15
-    len_per_ndeg = len_deg[::angle_n]
+    angle_n = 5
+    len_per_ndeg = np.array(len_deg[::angle_n])
     #rospy.loginfo(len(len_per_45deg))
     angle_min = data.angle_min
     #rospy.loginfo(angle_min)
@@ -112,7 +112,7 @@ def draw():
         img[:,:,:]=slam_map[:,:,:]
     except ValueError:
         rospy.loginfo("ValueError")
-    img[ (img[:,:,0]!=255) & (img[:,:,0]>=60)  ] = [255,0,0]
+    img[ (img[:,:,0]!=255) & (img[:,:,0]>=70)  ] = [255,0,0]
     
     rad_angle_n = angle_n*np.pi/180
     
@@ -123,34 +123,69 @@ def draw():
                           (144, 144, 0), int(1+(dot_size)/5))
 
     if rospy.get_param("/draw_scan_line"):
+    #if True:
         for i in range(len(len_per_ndeg)):
             if len_per_ndeg[i]==float("inf"):
                 continue
             #rospy.loginfo(len_per_ndeg[i])
-            scan_col = 0
-            if len_per_ndeg[i] < 1:
-                scan_col = 255
             try:
                 cv2.line(img, (int(x),int(y)), 
                      (int(x+(len_per_ndeg[i]*np.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
                       int(y+(len_per_ndeg[i]*np.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
-                      (scan_col, 255, 0), int(1+(dot_size)/5))
+                      (0, 255, 0), int(1+(dot_size)/5))
             except OverflowError:
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_per_ndeg[i])
 
     if rospy.get_param("/draw_scan_adge"):
-        #rospy.loginfo(len_deg)
+        #rospy.loginfo(np.shape(len_deg))
         for i in range(len(len_deg)):
             if len_deg[i]==float("inf"):
                 continue
             try:
                 cv2.circle(img, (int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
-                             int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),1, (52, 207, 235), -1 )
+                int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),1, (52, 207, 235), -1 )
             except OverflowError:
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_deg[i])
 
+    check_r = 20
+    crash_range = 1.0
+    #if rospy.get_param("/draw_scan_adge"):
+    if True:
+        #rospy.loginfo(angle_min)
+        for i in range(check_r):
+            if len_deg[i]==float("inf"):
+                continue
+            try:
+                check_col = (0, 255, 0)
+                if len_deg[i]<crash_range:
+                    check_col = (235, 52, 232)
+                cv2.line(img, (int(x),int(y)),
+                            (int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
+                            int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),
+                            check_col, int(1+(dot_size)/5))
+            except OverflowError:
+                rospy.loginfo("get inf")
+                rospy.loginfo(len_deg[i])
+
+            if len_deg[i*-1-1]==float("inf"):
+                continue
+            try:
+                check_col = (0, 255, 0)
+                if len_deg[i*-1-1]<crash_range:
+                    check_col = (235, 52, 232)
+                cv2.line(img, (int(x),int(y)),                                                      
+                            (int(x+(len_deg[i*-1-1]*np.cos(xyz[2]+angle_min+(i*-1-1)*(np.pi/180)))/res),
+                            int(y+(len_deg[i*-1-1]*np.sin(xyz[2]+angle_min+(i*-1-1)*(np.pi/180)))/res)),
+                            check_col, int(1+(dot_size)/5))
+            except OverflowError:
+                rospy.loginfo("get inf")
+                rospy.loginfo(len_deg[i*-1-1])
+
+    if len_deg[:check_r].min() < crash_range or len_deg[-check_r:].min() < crash_range :
+        rospy.loginfo("crash!!")
+    rospy.loginfo((len_deg[:check_r].min(),len_deg[-check_r:].min()))
 
     if rospy.get_param("/draw_map_o"):
         cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 255), -1)

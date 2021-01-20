@@ -1,6 +1,6 @@
 <launch>
   <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
-  <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>
+  <param name="serial_port"         type="string" value="/dev/rplidar"/>
   <param name="serial_baudrate"     type="int"    value="256000"/><!--A3 -->
   <param name="frame_id"            type="string" value="laser"/>
   <param name="inverted"            type="bool"   value="false"/>
@@ -26,6 +26,7 @@
   <node name="slam_control" pkg="project" type="slam_control.py" output="screen" />
   <node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
   <node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" />
+  <node name="image_stream" pkg="project" type="git_stream.py" output="screen" />
 
 </launch>
 
