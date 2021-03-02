@@ -13,7 +13,9 @@ from scipy.spatial.transform import Rotation
 import time
 
 
-rout = np.array([[0,0],[0,2],[1.1,2],[1.1,0]])
+#rout = np.array([[0,0],[0,0.7],[1.1,0.7],[1.1,0]])
+rout = np.array([[0,0],[0,5]], dtype='f')
+
 for i in range(1,len(rout)):
     rout[i]=[rout[i,0]*np.cos(np.pi/2)-rout[i,1]*np.sin(np.pi/2),
              rout[i,0]*np.sin(np.pi/2)+rout[i,1]*np.cos(np.pi/2)]
@@ -98,6 +100,7 @@ def update_scan(data):
 #ranges:
 
 def draw():
+    global rout
     #rospy.loginfo(np.shape(slam_map))
     
     map_x = -map_pos.x / res
@@ -116,12 +119,8 @@ def draw():
     
     rad_angle_n = angle_n*np.pi/180
     
-    if rospy.get_param("/draw_rout"):
-        for i in range(len(rout)-1):
-            cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
-                          (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),
-                          (144, 144, 0), int(1+(dot_size)/5))
 
+###############    draw 360 scanline   ####################
     if rospy.get_param("/draw_scan_line"):
     #if True:
         for i in range(len(len_per_ndeg)):
@@ -137,6 +136,7 @@ def draw():
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_per_ndeg[i])
 
+####################    draw now scanning dot    ####################
     if rospy.get_param("/draw_scan_adge"):
         #rospy.loginfo(np.shape(len_deg))
         for i in range(len(len_deg)):
@@ -149,12 +149,15 @@ def draw():
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_deg[i])
 
-    check_r = 20
-    crash_range = 1.0
+####################    draw crashing line   ####################
+    crash_range = 0.7
+    car_w = 0.4
+    check_r = (np.arctan((car_w/2)/crash_range)/np.pi)*180
+    #rospy.loginfo(check_r)
     #if rospy.get_param("/draw_scan_adge"):
     if True:
         #rospy.loginfo(angle_min)
-        for i in range(check_r):
+        for i in range(int(check_r*2)):
             if len_deg[i]==float("inf"):
                 continue
             try:
@@ -182,10 +185,24 @@ def draw():
             except OverflowError:
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_deg[i*-1-1])
+    
 
-    if len_deg[:check_r].min() < crash_range or len_deg[-check_r:].min() < crash_range :
-        rospy.loginfo("crash!!")
-    rospy.loginfo((len_deg[:check_r].min(),len_deg[-check_r:].min()))
+    if not rospy.get_param("/turning"):
+        if len_deg[:int(check_r)].min() < crash_range or len_deg[int(-check_r):].min() < crash_range :
+            rospy.loginfo("crash!!")
+            ok_len = ((car_w/2)*3)/np.sin( ( (3*check_r) /180) *np.pi)
+            for deg_p in range(int(check_r),int(check_r)+45):
+                if len_deg[int(deg_p):int(2*check_r+deg_p)].min() > ok_len :
+                    find_deg = ((check_r+deg_p)/180)*np.pi
+                    finded = [now_x-ok_len*np.cos(find_deg+xyz[2]),now_y-ok_len*np.sin(find_deg+xyz[2])]
+                    rospy.loginfo(finded)
+                    #cv2.circle(img, (int(finded[0]/res),int(finded[1]/res)),int(1+dot_size/2),(0, 150, 255), -1)
+                    rout = np.insert(rout,-1,[now_x,now_y],0)
+                    rout = np.insert(rout,-1,finded,0)
+                    break
+                if rospy.is_shutdown():
+                    break
+
 
     if rospy.get_param("/draw_map_o"):
         cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 255), -1)
@@ -197,13 +214,20 @@ def draw():
         cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*np.cos(xyz[2])),
                                         int(y-5*dot_size*np.sin(xyz[2]))),
                  (0, 0, 255), int(1+(dot_size*2)/3) )
-    
+
+####################    draw rout   ####################
+    if rospy.get_param("/draw_rout"):
+        for i in range(len(rout)-1):
+            cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
+                          (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),
+                          (144, 144, 0), int(1+(dot_size)/5))
+
     if rospy.get_param("/img_flip"):
         img = cv2.flip(img, 1)
     
     publish_image(img)
 
-
+last_x,last_y = 0,0
 try:
     rospy.init_node('slam_control')
     rospy.Subscriber('/scan',LaserScan,update_scan)
@@ -222,36 +246,38 @@ try:
         continue
     rospy.loginfo(setup)
     rospy.loginfo("done")
-    
-    rospy.set_param("/turning",True)
+    rospy.set_param("/turning",False)    
     deg = get_deg(np.array([-1,0]),rout[1]-rout[0])
-
-    pub_deg.publish(deg)
+    if deg > np.pi/18:
+        rospy.set_param("/turning",True)
+        pub_deg.publish(deg)
     
     rate = rospy.Rate(10)
     now_dot = 0
     while not rospy.is_shutdown():
         if rospy.get_param("/turning"):
             rospy.loginfo("turning")
+            draw()
+            rate.sleep()
             continue
         #rospy.loginfo(rout[1])
         #rospy.loginfo((now_x,now_y))
         #rospy.loginfo(np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]))
         deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-rout[now_dot])
-        pub_deg.publish(deg)
         if np.linalg.norm([rout[now_dot+1,0]-now_x,rout[now_dot+1,1]-now_y]) < 0.3 :
             now_dot += 1
+            if now_dot==len(rout)-1:
+                mymotor = motor_msg()
+                mymotor.way = 'stop'
+                pub_mot.publish(mymotor)
+                while not rospy.is_shutdown():
+                    rospy.loginfo("finish!!")
+                    rospy.sleep(2)
             rospy.set_param("/turning",True)
             deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-rout[now_dot])
             pub_deg.publish(deg)
-
-        if now_dot==len(rout)-1:
-            mymotor = motor_msg()
-            mymotor.way = 'stop'
-            pub_mot.publish(mymotor)
-            while not rospy.is_shutdown():
-                rospy.loginfo("finish!!")
-                rospy.sleep(2)
+        
+        pub_deg.publish(deg)
         draw()
         rate.sleep()
     rospy.spin()
