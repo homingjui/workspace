@@ -19,11 +19,11 @@
   <param name="/draw_car_o" type="bool" value="True" />
   <param name="/draw_car_way" type="bool" value="True" />
   <param name="/draw_scan_line" type="bool" value="False" />
-  <param name="/draw_scan_adge" type="bool" value="True" />
+  <param name="/draw_scan_adge" type="bool" value="False" />
   <param name="/draw_rout" type="bool" value="True" />
   <param name="/img_flip" type="bool" value="True" />
 
-  <!--node name="slam_control" pkg="project" type="slam_control.py" output="screen" /-->
+  <node name="slam_control" pkg="project" type="slam_control.py" output="screen" />
   <node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
   <node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" />
   <node name="image_stream" pkg="project" type="git_stream.py" output="screen" />

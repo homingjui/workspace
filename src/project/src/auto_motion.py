@@ -9,9 +9,10 @@ from scipy.spatial.transform import Rotation
 import math
 
 the_acc = 0
-turn_speed = 125
+turn_speed = 60
 
 def update_pos(data):
+    global the_acc
     tf = data.transforms[0]
     tfx = tf.transform.rotation.x
     tfy = tf.transform.rotation.y
@@ -19,8 +20,8 @@ def update_pos(data):
     tfw = tf.transform.rotation.w
     rot = Rotation.from_quat([tfx, tfy, tfz, tfw])
     xyz = rot.as_euler('xyz')
-    global the_acc
-    the_acc = (xyz[2]/math.pi)*180
+    the_acc = (xyz[2]/math.pi)*180+180
+    #rospy.loginfo(the_acc)
     
 
 def update_acc(acc):
@@ -33,8 +34,8 @@ def set_motor(deg):
         per = (deg.deg*(-3)) / math.pi
         rospy.loginfo("run"+str(per))
         mymotor.way = 'front'
-        mymotor.speed = 100
-        mymotor.persent = per
+        mymotor.speed = 200
+        mymotor.persent = per*1.1
         pub.publish(mymotor)
     else:
         rospy.loginfo(deg.deg)
