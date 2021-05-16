@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="timed_roslaunch" type="timed_roslaunch.sh"
+    args="1 project rs_camera.launch"
+    name="timed_roslaunch" />
+  <!--node name="realsense_img" pkg="project" type="realsense_img2.py" output="screen" /-->
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui"/>
+</launch>
+

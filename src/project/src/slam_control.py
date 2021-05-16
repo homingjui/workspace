@@ -16,6 +16,8 @@ from scipy.spatial.transform import Rotation
 
 #rout = np.array([[0,0],[0,0.7],[1.1,0.7],[1.1,0]])
 rout = np.array([[0,0],[0,5],[-0.5,5],[-0.5,0]], dtype='f')
+len_avr = 12
+len_deg_array = np.zeros((len_avr,360))
 
 for i in range(1,len(rout)):
     rout[i]=[rout[i,0]*np.cos(np.pi/2)-rout[i,1]*np.sin(np.pi/2),
@@ -69,7 +71,7 @@ def update_pos(data):
     #draw()
 
 def update_map(data):
-    global slam_map,w,h,res,map_pos
+    global slam_map,w,h,res,map_pos,len_deg_array
     setup[1]=True
     slam_map = np.array(data.data).reshape(data.info.height, data.info.width, -1)
     w = data.info.width
@@ -78,13 +80,14 @@ def update_map(data):
     map_pos = data.info.origin.position
 
 def update_scan(data):
-    global len_per_ndeg,angle_min,angle_n,len_deg
+    global len_per_ndeg,angle_min,angle_n,len_deg,len_deg_array
     setup[2]=True
     header = data.header
     ranges = data.ranges
     #rospy.loginfo(header)
     #rospy.loginfo(len(ranges))
     len_deg = np.array(ranges[::4])
+    len_deg_array=np.vstack((len_deg_array[1:],len_deg))
     #rospy.loginfo(len(len_per_deg))
     angle_n = 5
     len_per_ndeg = np.array(len_deg[::angle_n])
@@ -118,14 +121,18 @@ def draw():
         img[:,:,:]=slam_map[:,:,:]
     except ValueError:
         rospy.loginfo("ValueError")
-    img[ (img[:,:,0]!=255) & (img[:,:,0]>=70)  ] = [255,0,0]
-    
+    #img[ (img[:,:,0]!=255) & (img[:,:,0]>=70)  ] = [255,0,0]
+    img[ (img[:,:,0]==255) | (img[:,:,0]<=60)  ] = [0,0,0]
+    img[ img[:,:,0] != 0 ] = [255,255,255]
+    kernel = np.ones((5,5), np.uint8)
+    img = cv2.dilate(img, kernel, iterations = 2)
+
     rad_angle_n = angle_n*np.pi/180
     
 
 ###############    draw 360 scanline   ####################
-    if rospy.get_param("/draw_scan_line"):
-    #if True:
+    #if rospy.get_param("/draw_scan_line"):
+    if False:
         for i in range(len(len_per_ndeg)):
             if len_per_ndeg[i]==float("inf"):
                 continue
@@ -140,11 +147,28 @@ def draw():
                 rospy.loginfo(len_per_ndeg[i])
 
 ####################    draw now scanning dot    ####################
+    
+    #len_degs = len_deg_array.sum(axis=0)/len_avr
+    #len_deg_filter = 0.1
     #if rospy.get_param("/draw_scan_adge"):
+    if False:
+        #rospy.loginfo(np.shape(len_deg))
+        for i in range(1,len(len_degs)-1):
+            if len_degs[i]==float("inf"):
+                continue
+            #if img[int(y+(len_deg[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res),
+            #        int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),0] == 255: 
+            #    continue
+            try:
+                cv2.circle(img, (int(x+(len_degs[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
+                int(y+(len_degs[i]*np.sin(xyz[2]+angle_min+i*(np.pi/180)))/res)),1, (125, 147, 66), -1 )
+            except OverflowError:
+                rospy.loginfo("get inf s")
+                rospy.loginfo(len_degs[i])
     if True:
         #rospy.loginfo(np.shape(len_deg))
         for i in range(len(len_deg)):
-            if len_deg[i]==float("inf"):
+            if len_deg[i]==float('inf'):
                 continue
             try:
                 cv2.circle(img, (int(x+(len_deg[i]*np.cos(xyz[2]+angle_min+i*(np.pi/180)))/res),
@@ -152,14 +176,13 @@ def draw():
             except OverflowError:
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_deg[i])
-
 ####################    draw crashing line   ####################
     crash_range = 0.6
     car_w = 0.48
     check_r = ((np.arctan((car_w/2)/crash_range)/np.pi)*180)*0.8
     #rospy.loginfo(check_r)
     #if rospy.get_param("/draw_scan_adge"):
-    if True:
+    if False:
         #rospy.loginfo(angle_min)
         for i in range(int(check_r)):
             if len_deg[i]==float("inf"):
@@ -285,6 +308,7 @@ try:
         deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-[now_x,now_y])
         d_to_next_dot = np.linalg.norm([rout[now_dot+1,0]-now_x,rout[now_dot+1,1]-now_y])
         d_running = np.linalg.norm([last_x-now_x,last_y-now_y])
+        ##################################### add active motion detec#################333
         if d_to_next_dot < d_running :
             now_dot += 1
             if now_dot==len(rout)-1:

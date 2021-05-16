@@ -64,7 +64,15 @@ def on_image(data):
         #print(time.time() - t1)
         event.set()
 
+def getRGB(data):
+        global RGB
+        #RGB = np.frombuffer(data.data, dtype=np.uint8).reshape(data.height, data.width, -1)
+        img = np.ndarray(buffer=data.data,dtype=np.uint8,shape=(data.height,data.width,3))
+        RGB = simplejpeg.encode_jpeg(img)
+        event.set()
+
 Thread(target=lambda: rospy.init_node('image_stream', disable_signals=True)).start()
+rospy.Subscriber('/rs_image_raw',Image,getRGB)
 rospy.Subscriber("/my_image_raw",Image, on_image)
 rospy.Subscriber("/yolo_image_raw",Image, yolo_image)
 rospy.Subscriber('/tf',TFMessage,update_pos)
@@ -97,15 +105,65 @@ def send():
 def gen():
     global t
     while True:
-        event.wait()
-        event.clear()
-        yield (b'--frame\r\n'
+        if 'fram'in globals():
+            event.wait()
+            event.clear()
+            yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + fram + b'\r\n')
+        else:
+            img = np.zeros((500,500,3),dtype=np.uint8)
+            cv2.putText(img, 'no img QQ', (50, 300), cv2.FONT_HERSHEY_PLAIN,
+                      5, (0, 255, 255), 5, cv2.LINE_AA)
+            framx = simplejpeg.encode_jpeg(img)
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + framx + b'\r\n')
+            
+def gen_cam():
+    while True:
+        if 'RGB'in globals():
+            event.wait()
+            event.clear()
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + RGB + b'\r\n')
+        else:
+            img = np.zeros((500,500,3),dtype=np.uint8)
+            cv2.putText(img, 'no cam img', (50, 300), cv2.FONT_HERSHEY_PLAIN,
+                        4.5, (240, 3, int(time.time()*100)%255), 5, cv2.LINE_AA)
+            framx = simplejpeg.encode_jpeg(img)
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + framx + b'\r\n')
+            
+def gen_slam():
+    while True:
+        if 'fram'in globals():
+            event.wait()
+            event.clear()
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + fram + b'\r\n')
+        else:
+            img = np.zeros((500,500,3),dtype=np.uint8)
+            cv2.putText(img, 'no slam img', (50, 300), cv2.FONT_HERSHEY_PLAIN,
+                    4.5, (int(time.time()*100)%255, 109, 201), 5, cv2.LINE_AA)
+            framx = simplejpeg.encode_jpeg(img)
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + framx + b'\r\n')
+
 
 @app.route('/video_feed')
 def video_feed():
     return Response(gen(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/slam_graph')
+def slam_graph():
+        return Response(gen_slam(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/camera')
+def camera():
+        return Response(gen_cam(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 def signal_handler(signal, frame):
     rospy.signal_shutdown("end")
@@ -114,4 +172,4 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT,signal_handler)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8081 ,debug=False)
+    app.run(host='0.0.0.0', port=3400 ,debug=False)

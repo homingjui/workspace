@@ -8,6 +8,10 @@
   <param name="scan_mode"           type="string" value="Sensitivity"/>
   </node>
 
+  <!--node pkg="timed_roslaunch" type="timed_roslaunch.sh"
+    args="1 project rs_camera.launch"
+    name="rs_camera" /-->
+
   <node pkg="timed_roslaunch" type="timed_roslaunch.sh"
     args="5 project slam_cartographer.launch"
     name="timed_roslaunch" />
@@ -23,9 +27,10 @@
   <param name="/draw_rout" type="bool" value="True" />
   <param name="/img_flip" type="bool" value="True" />
 
-  <node name="slam_control" pkg="project" type="slam_control.py" output="screen" />
-  <node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" />
-  <node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" />
+  <!--node name="slam_control" pkg="project" type="slam_control.py" output="screen" /-->
+  <!--node name="realsense_img" pkg="project" type="realsense_img.py" output="screen" /-->
+  <!--node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" /-->
+  <!--node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" /-->
   <node name="image_stream" pkg="project" type="git_stream.py" output="screen" />
 
 </launch>
