@@ -34,7 +34,7 @@ def set_motor(deg):
         per = (deg.deg*(-3)) / math.pi
         rospy.loginfo("run"+str(per))
         mymotor.way = 'front'
-        mymotor.speed = 200
+        mymotor.speed = 150
         mymotor.persent = per*1.1
         pub.publish(mymotor)
     else:

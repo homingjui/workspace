@@ -15,7 +15,7 @@ from scipy.spatial.transform import Rotation
 
 
 #rout = np.array([[0,0],[0,0.7],[1.1,0.7],[1.1,0]])
-rout = np.array([[0,0],[0,5],[-0.5,5],[-0.5,0]], dtype='f')
+rout = np.array([[0,0],[0,10]], dtype='f')
 len_avr = 12
 len_deg_array = np.zeros((len_avr,360))
 
@@ -121,11 +121,11 @@ def draw():
         img[:,:,:]=slam_map[:,:,:]
     except ValueError:
         rospy.loginfo("ValueError")
-    #img[ (img[:,:,0]!=255) & (img[:,:,0]>=70)  ] = [255,0,0]
-    img[ (img[:,:,0]==255) | (img[:,:,0]<=60)  ] = [0,0,0]
-    img[ img[:,:,0] != 0 ] = [255,255,255]
-    kernel = np.ones((5,5), np.uint8)
-    img = cv2.dilate(img, kernel, iterations = 2)
+    img[ (img[:,:,0]!=255) & (img[:,:,0]>=70)  ] = [255,0,0]
+    #img[ (img[:,:,0]==255) | (img[:,:,0]<=60)  ] = [0,0,0]
+    #img[ img[:,:,0] != 0 ] = [255,255,255]
+    #kernel = np.ones((5,5), np.uint8)
+    #img = cv2.dilate(img, kernel, iterations = 2)
 
     rad_angle_n = angle_n*np.pi/180
     
@@ -177,12 +177,12 @@ def draw():
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_deg[i])
 ####################    draw crashing line   ####################
-    crash_range = 0.6
-    car_w = 0.48
+    crash_range = 0.65
+    car_w = 0.5
     check_r = ((np.arctan((car_w/2)/crash_range)/np.pi)*180)*0.8
     #rospy.loginfo(check_r)
     #if rospy.get_param("/draw_scan_adge"):
-    if False:
+    if True:
         #rospy.loginfo(angle_min)
         for i in range(int(check_r)):
             if len_deg[i]==float("inf"):

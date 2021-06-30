@@ -31,9 +31,9 @@
   <arg name="infra_fps"           default="6"/>
   <arg name="color_fps"           default="6"/>
   <arg name="gyro_fps"            default="200"/>
-  <arg name="accel_fps"           default="63"/>
+  <arg name="accel_fps"           default="250"/>
   <arg name="enable_gyro"         default="true"/>
-  <arg name="enable_accel"        default="false"/>
+  <arg name="enable_accel"        default="true"/>
 
   <arg name="enable_pointcloud"         default="false"/>
   <arg name="pointcloud_texture_stream" default="RS2_STREAM_COLOR"/>
@@ -42,7 +42,7 @@
   <arg name="enable_sync"               default="false"/>
   <arg name="align_depth"               default="true"/>
 
-  <arg name="publish_tf"                default="true"/>
+  <arg name="publish_tf"                default="false"/>
   <arg name="tf_publish_rate"           default="0"/>
 
   <arg name="filters"                   default="hole_filling"/>

@@ -60,7 +60,7 @@ def getRGB(data):
 def draw(data):
     global max_len 
     depth_img = np.frombuffer(data.data, dtype=np.uint8).reshape(data.height, data.width, -1)
-    rospy.loginfo(np.shape(depth_img))
+    #rospy.loginfo(np.shape(depth_img))
     
     depth = np.zeros((data.height, data.width), dtype=np.uint16)
     depth[:,:] = depth_img[:,:,1]
@@ -85,8 +85,9 @@ def draw(data):
     #rospy.loginfo(depth[x,y])
     #rospy.loginfo(depth_img[x,y])
     cv2.circle(img, (y, x), 5,(255, 255, 255), 1)
-    img_pub = cv2.addWeighted(RGB,0.5,img,0.5,0)
-    publish_image(img_pub)
+    img_pub = cv2.addWeighted(RGB,0.9,img,0.1,0)
+    #publish_image(img_pub)
+    publish_image(RGB)
 try:
     rospy.init_node('image_pub')
     rospy.Subscriber('/camera/color/image_raw',Image,getRGB)
