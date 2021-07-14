@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import pyrealsense2 as rs
+#import pyrealsense2 as rs
 import rospy
 from project.msg import position_msg
 from sensor_msgs.msg import Image
@@ -25,6 +25,9 @@ colorlib[256*3:256*4,2]= 255
 colorlib = (colorlib/50)*50
 RGB = []
 max_len = 0
+
+hfov = 42*(np.pi/180)
+vfov = 69*(np.pi/180)
 
 def publish_image(imgdata):
     image_temp=Image()
@@ -63,6 +66,7 @@ def draw(data):
     #rospy.loginfo(np.shape(depth_img))
     
     depth = np.zeros((data.height, data.width), dtype=np.uint16)
+    print ("d",depth_img[0,0])
     depth[:,:] = depth_img[:,:,1]
     depth *= 255
     depth += depth_img[:,:,0]
@@ -75,19 +79,50 @@ def draw(data):
     color = (color/color.max())*1023
     color = color.astype(np.uint16)
 
-    img = np.zeros((data.height, data.width, 3), dtype=np.uint8)
+    dimg = np.zeros((data.height, data.width, 3), dtype=np.uint8)
 
-    img[:,:,:]=[colorlib[i] for i in color]
+    dimg[:,:,:]=[colorlib[i] for i in color]
 
-    y = int(data.width/2)
-    x = int(data.height/2)+20
+    x = int(data.width/2)
+    y = int(data.height/2)
     #rospy.loginfo(str(x)+" "+str(y))
-    #rospy.loginfo(depth[x,y])
     #rospy.loginfo(depth_img[x,y])
-    cv2.circle(img, (y, x), 5,(255, 255, 255), 1)
-    img_pub = cv2.addWeighted(RGB,0.9,img,0.1,0)
+    img = np.array(RGB)
+    img[y,:,:]=[255,255,255]
+    img[:,x,:]=[255,255,255]
+    cv2.circle(img, (x, y), 5,(255, 255, 255), 0)
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    blurred = cv2.medianBlur(gray, 25) #cv2.bilateralFilter(gray,10,50,50)
+
+    minDist = 100
+    param1 = 30 #500
+    param2 = 50 #200 #smaller value-> more false circles
+    minRadius = 2
+    maxRadius = 100 #10
+
+# docstring of HoughCircles: HoughCircles(image, method, dp, minDist[, circles[, param1[, param2[, minRadius[, maxRadius]]]]]) -> circles
+    circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1, minDist, 
+                                param1=param1, param2=param2, minRadius=minRadius, maxRadius=maxRadius)
+
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0,:]:
+            cv2.circle(img, (i[0], i[1]), 5, (0, 255, 0), -1)
+            x_deg = (vfov/2)*(abs(x-i[0])/x)
+            y_deg = (hfov/2)*(abs(y-i[1])/y)
+            point_tf = [0,0,0]
+            point_tf[0] = depth[i[1],i[0]]*np.cos(x_deg)*np.cos(y_deg)
+            point_tf[1] = depth[i[1],i[0]]*np.sin(x_deg) 
+            point_tf[2] = depth[i[1],i[0]]*np.sin(y_deg) 
+            #alpha = depth*np.cos()
+            rospy.loginfo((x_deg,y_deg,depth[i[1],i[0]],np.cos(x_deg),np.cos(y_deg),point_tf))
+            rospy.loginfo(depth[x,y])
+            rospy.loginfo("")
+    #img_pub = cv2.addWeighted(img,0.9,dimg,0.1,0)
     #publish_image(img_pub)
-    publish_image(RGB)
+    publish_image(img)
 try:
     rospy.init_node('image_pub')
     rospy.Subscriber('/camera/color/image_raw',Image,getRGB)

@@ -12,7 +12,7 @@
     args="5 project slam_cartographer.launch"
     name="timed_roslaunch" />
 
-  <!--node name="slam_img" pkg="project" type="slam_img.py" output="screen" /-->
+  <node name="slam_img" pkg="project" type="slam_img.py" output="screen" />
 
 </launch>
 
