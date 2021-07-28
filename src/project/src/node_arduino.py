@@ -30,9 +30,9 @@ def motor(motor):
     #rospy.loginfo(motor)
 
 def writeNumber(value):
-#    r.sleep()
+    r.sleep()
 #    rospy.loginfo(value)
-#    bus.write_byte(address, int(0))
+    bus.write_byte(address, int(value))
     return -1
 #def writeNumbers(value):
 #    data = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -49,7 +49,7 @@ def readNumbers():
 
 pub = rospy.Publisher('arduino', arduino_msg, queue_size=10)
 rospy.init_node('node_arduino')
-r = rospy.Rate(10)
+r = rospy.Rate(5)
 arduino = arduino_msg()
 check = [0,0]
 
@@ -73,59 +73,65 @@ try:
         #rospy.loginfo("motion")
         if motion['back']:
             persentvalu = int((255-speed)*persent)
-            #writeNumber("01")
-            duty1 = max(0,min(speed+offset+persentvalu,255))
-            #writeNumber(duty)
-            #writeNumber("10")
-            duty2 = max(0,min(speed-offset-persentvalu,255))
-            #writeNumber(duty)
+            writeNumber("01")
+            duty = max(0,min(speed+offset+persentvalu,255))
+            writeNumber(duty)
+            writeNumber("10")
+            duty = max(0,min(speed-offset-persentvalu,255))
+            writeNumber(duty)
             motion['back']=False
-            data = [1, 10, duty1, duty2]
-            bus.write_i2c_block_data(address, 0, data)
+            #data = [1, 10, duty1, duty2]
+            #bus.write_i2c_block_data(address, 0, data)
         elif motion['front']:
-            #rospy.loginfo('front')
+            rospy.loginfo('front')
             persentvalu = int((255-speed)*persent)
-            #writeNumber("10")
-            duty1 = max(0,min(speed+offset+persentvalu,255))
-            #writeNumber(duty)
-            #writeNumber("01")
-            duty2 = max(0,min(speed-offset-persentvalu,255))
-            #writeNumber(duty)
+            writeNumber("10")
+            duty = max(0,min(speed+offset+persentvalu,255))
+            writeNumber(duty)
+            writeNumber("01")
+            duty = max(0,min(speed-offset-persentvalu,255))
+            writeNumber(duty)
+            writeNumber(255)
             motion['front']=False
-            data = [10, 1, duty1, duty2]
-            bus.write_i2c_block_data(address, 0, data)
+            #data = [10, 1, duty1, duty2]
+            #rospy.loginfo((persentvalu,speed,offset,data))
+            #bus.write_i2c_block_data(address, 0, data)
         elif motion['left']:
-            #writeNumber("10")
-            #writeNumber(speed)
-            #writeNumber("10")
-            #writeNumber(speed)
+            writeNumber("10")
+            writeNumber(speed)
+            writeNumber("10")
+            writeNumber(speed)
             motion['left']=False
-            data = [10, 10, speed, speed]
-            bus.write_i2c_block_data(address, 0, data)
+            writeNumber(255)
+            #data = [10, 10, speed, speed]
+            #bus.write_i2c_block_data(address, 0, data)
         elif motion['right']:
-            #writeNumber("01")
-            #writeNumber(speed)
-            #writeNumber("01")
-            #writeNumber(speed)
+            writeNumber("01")
+            writeNumber(speed)
+            writeNumber("01")
+            writeNumber(speed)
             motion['right']=False
-            data = [1, 1, speed, speed]
-            bus.write_i2c_block_data(address, 0, data)
+            writeNumber(255)
+            #data = [1, 1, speed, speed]
+            #bus.write_i2c_block_data(address, 0, data)
         elif motion['stop']:
             #rospy.loginfo("stop motor");
-            #writeNumber("00")
-            #writeNumber("0")
-            #writeNumber("00")
-            #writeNumber("0")
+            writeNumber("00")
+            writeNumber("0")
+            writeNumber("00")
+            writeNumber("0")
             motion['stop']=False
-            data = [0, 0, 0, 0]
-            bus.write_i2c_block_data(address, 0, data)
+            writeNumber(255)
+            #data = [0, 0, 0, 0]
+            #bus.write_i2c_block_data(address, 0, data)
         r.sleep()
 
 except rospy.ROSInterruptException:
-    #writeNumber("00")
-    #writeNumber("0")
-    #writeNumber("00")
-    #writeNumber("0")
-    data = [0, 0, 0, 0]
-    bus.write_i2c_block_data(address, 0, data)
+    writeNumber("00")
+    writeNumber("0")
+    writeNumber("00")
+    writeNumber("0")
+    writeNumber(255)
+    #data = [0, 0, 0, 0]
+    #bus.write_i2c_block_data(address, 0, data)
     ser.close()

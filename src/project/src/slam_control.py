@@ -14,8 +14,8 @@ from scipy.spatial.transform import Rotation
 
 
 
-#rout = np.array([[0,0],[0,0.7],[1.1,0.7],[1.1,0]])
-rout = np.array([[0,0],[0,10]], dtype='f')
+rout = np.array([[0,0],[0,5.5],[-3,5.5],[-3,4.5],[0,4.5],[0,0]])
+#rout = np.array([[0,0],[0,10]], dtype='f')
 len_avr = 12
 len_deg_array = np.zeros((len_avr,360))
 
@@ -177,7 +177,8 @@ def draw():
                 rospy.loginfo("get inf")
                 rospy.loginfo(len_deg[i])
 ####################    draw crashing line   ####################
-    crash_range = 0.65
+  #  crash_range = 0.65
+    crash_range = 0.8
     car_w = 0.5
     check_r = ((np.arctan((car_w/2)/crash_range)/np.pi)*180)*0.8
     #rospy.loginfo(check_r)
@@ -215,6 +216,7 @@ def draw():
     
 
     if not rospy.get_param("/turning"):
+    #if False:
         if len_deg[:int(check_r)].min() < crash_range or len_deg[int(-check_r):].min() < crash_range :
             rospy.loginfo("crash!!")
             ok_len = (car_w*1.2)/np.sin( ( (3*check_r) /180) *np.pi)
@@ -258,7 +260,8 @@ def draw():
     #print(now_dot)
     cv2.circle(img, (int(map_x+rout[now_dot+1,0]/res),int(map_y+rout[now_dot+1,1]/res)),int(1+dot_size),(100, 100, 255), -1)
 ####################    draw rout   ####################
-    if rospy.get_param("/draw_rout"):
+    #if rospy.get_param("/draw_rout"):
+    if True:
         for i in range(len(rout)-1):
             cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
                           (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),
@@ -296,6 +299,7 @@ try:
     
     rate = rospy.Rate(10)
     now_dot = 0
+    d_running=0
     while not rospy.is_shutdown():
         if rospy.get_param("/turning"):
             rospy.loginfo("turning")
@@ -307,7 +311,7 @@ try:
         #rospy.loginfo(np.linalg.norm([rout[1,0]-now_x,rout[1,1]-now_y]))
         deg = get_deg(np.array([-np.cos(xyz[2]),-np.sin(xyz[2])]),rout[now_dot+1]-[now_x,now_y])
         d_to_next_dot = np.linalg.norm([rout[now_dot+1,0]-now_x,rout[now_dot+1,1]-now_y])
-        d_running = np.linalg.norm([last_x-now_x,last_y-now_y])
+        d_running = max(np.linalg.norm([last_x-now_x,last_y-now_y]),d_running)
         ##################################### add active motion detec#################333
         if d_to_next_dot < d_running :
             now_dot += 1
