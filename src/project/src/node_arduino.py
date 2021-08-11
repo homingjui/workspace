@@ -59,9 +59,9 @@ try:
     while not rospy.is_shutdown():
         read = readNumbers()
         #rospy.loginfo(read)
-        arduino.gyroX = (float(read[2])*256+read[3])
-        arduino.gyroY = (float(read[4])*256+read[5])
-        arduino.gyroZ = (float(read[6])*256+read[7])
+        arduino.gyroX = (float(read[2])*256+read[3]-32768)
+        arduino.gyroY = (float(read[4])*256+read[5]-32768)
+        arduino.gyroZ = (float(read[6])*256+read[7]-32768)
         arduino.accX = (float(read[8])*256+read[9])
         arduino.accY = (float(read[10])*256+read[11])
         arduino.accZ = (float(read[12])*256+read[13])
