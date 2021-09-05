@@ -10,36 +10,36 @@ import sensor_msgs.point_cloud2 as pcl2
 import time
 
 
-np.set_printoptions(precision=5,suppress=True)
-vhex = np.vectorize(hex)
-pcl2_temp=PointCloud2()
-pub_row = 1
+vhex=np.vectorize(hex)
 
 def hex_to_float(a):
     a= ("{:0>2x}" * len(a)).format(*tuple(a[::-1]))
 #    print a
     return struct.unpack('!f', a.decode('hex'))[0]
 
-def get_pcl2(data):
-    global pub_row
-    print ""
-    print data.width
-    print data.row_step
-    print data.point_step
-    #print data.fields
-    pcl2_temp.header = data.header
-    pcl2_temp.height = data.height
-    pcl2_temp.is_bigendian = data.is_bigendian
-    pcl2_temp.point_step = data.point_step
-    pcl2_temp.fields = data.fields
-    pcl2_temp.is_dense = False
+pcl2=None
+def new_pcl2(data):
+    global pcl2
+    pcl2=data
 
+def pub_pcl2():
+    print ""
+    pcl2_temp=PointCloud2()
+    pcl2_temp.header=pcl2.header
+    pcl2_temp.height=pcl2.height
+    pcl2_temp.width=pcl2.width
+    pcl2_temp.fields=pcl2.fields
+    pcl2_temp.is_bigendian=pcl2.is_bigendian
+    pcl2_temp.point_step=pcl2.point_step
+    pcl2_temp.row_step=pcl2.row_step
+    pcl2_temp.is_dense=pcl2.is_dense
+    print pcl2_temp.width
 
     start = time.time()
-    point_arr = np.ndarray(buffer=data.data,dtype=np.uint8,
-            shape=(data.width,data.point_step/4,4))
+    point_arr = np.ndarray(buffer=pcl2.data,dtype=np.uint8,
+            shape=(pcl2.width,pcl2.point_step/4,4))
+    rgb = np.array(point_arr[:,-2:])
     xyz_hex = np.zeros((np.shape(point_arr)[0],3),dtype=np.uint32)
-    xyz = np.zeros((np.shape(point_arr)[0],3),dtype=np.float32)
 
 
     xyz_hex[:,:]=point_arr[:,:3,-1]*256
@@ -51,42 +51,30 @@ def get_pcl2(data):
     exp = 2**(((xyz_hex >> 23)&0xFF).astype('float64')-127)
     num = 1+(xyz_hex & 0x7FFFFF).astype('float64')/2**23
     xyz = sign*exp*num
-    #xyz = np.hstack((xyz, point_arr[:,4,:3]))
     xyz = xyz.astype('float32')
-    print time.time()-start
-    print point_arr[-1]
-    print vhex(point_arr[-1])
 
-    start = time.time()
-    print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-    xyz[:,0] /= xyz[:,2]
-    xyz[:,1] /= xyz[:,2]
-    xyz[:,2] /= xyz[:,2]
+    ################################################## do your work below
+    #### pcl2_temp.width: points num
+    #### xyz: array for points xyz -> [x,y,z]* points num
+    #### rgb: array for points rgb -> [r,g,b,0]* points num
 
-    print xyz[:,0].max()
-    print xyz[:,1].max()
-    print xyz[:,2].max()
-    print xyz[-1]
-
-    print xyz[-1,0]
-    print type(xyz[-1,0])
+    ################################################## finish your work here
     new_pcl2 = np.array(xyz.data).reshape((-1,3,4))
-    new_pcl2 = np.hstack((new_pcl2, point_arr[:,-2:]))
-    print np.shape(new_pcl2)
-    print new_pcl2[-1]
+    new_pcl2 = np.hstack((new_pcl2, rgb))
     new_pcl2 = new_pcl2.reshape(-1)
-    print np.shape(new_pcl2)
 
-    print time.time()-start
     mydata = new_pcl2.tolist()
-    pcl2_temp.row_step = data.row_step
-    pcl2_temp.width = data.width
     pcl2_temp.data = mydata
+    print time.time()-start
     pcl2_pub.publish(pcl2_temp)
-
+    print time.time()-start
 rospy.init_node('pcl2_pub_example')
-rospy.Subscriber('/camera/depth/color/points',PointCloud2,get_pcl2)
+rospy.Subscriber('/camera/depth/color/points',PointCloud2,new_pcl2,queue_size=1)
 pcl2_pub = rospy.Publisher('my_pcl2',PointCloud2,queue_size=1)
-rospy.spin()
-#except rospy.ROSInterruptException:
-#    pass
+try:
+    while pcl2==None:
+        print "wait"
+    while not rospy.is_shutdown():
+        pub_pcl2()
+except rospy.ROSInterruptException:
+    pass
