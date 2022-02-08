@@ -1,0 +1,5 @@
+set up git
+git config --local -e
+[user]
+    name = homingjui
+    email = richard.93600@gmail.com
