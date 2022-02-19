@@ -75,13 +75,21 @@ def new_pcl2(pcl2):
     pcl2_temp.height=pcl2.height
     pcl2_temp.fields=pcl2.fields
     pcl2_temp.is_bigendian=pcl2.is_bigendian
-    pcl2_temp.point_step=pcl2.point_step
+    pcl2_temp.point_step=20
+    #pcl2_temp.point_step=pcl2.point_step
     pcl2_temp.is_dense=pcl2.is_dense
-    print pcl2_temp.width
+    print pcl2.width
+    print pcl2.height
+    print pcl2.point_step
+    print pcl2.row_step
 
     start = time.time()
     point_arr = np.ndarray(buffer=pcl2.data,dtype=np.uint8,
-            shape=(pcl2.width,pcl2.point_step/4,4))
+            shape=(pcl2.width*pcl2.height,32/4,4))
+    #print(point_arr[0])
+    point_arr=point_arr[:,:5]
+    #print(np.shape(point_arr))
+    print(point_arr[0])
     rgb = np.array(point_arr[:,-2:])
     xyz_hex = np.zeros((np.shape(point_arr)[0],3),dtype=np.uint32)
 
@@ -96,53 +104,36 @@ def new_pcl2(pcl2):
     num = 1+(xyz_hex & 0x7FFFFF).astype('float64')/2**23
     xyz = sign*exp*num
     xyz = xyz.astype('float32') 
+
+
+    xyz[np.any(xyz==-np.inf,axis=1)]=np.nan
+    xyz[np.any(xyz==np.inf,axis=1)]=np.nan
+
     xyzo = np.array(xyz)
-    #print point_arr[-1]
-    #print vhex(point_arr[-1])
 
     #print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    
     
     xyz[:,0] /= xyz[:,2]
     xyz[:,1] /= xyz[:,2]
     xyz[:,2] /= xyz[:,2]
 
-    x_max = xyz[:,0].max()
-    x_min = xyz[:,0].min()
-    x_l = x_max-x_min
-    y_max = xyz[:,1].max()
-    y_min = xyz[:,1].min()
-    y_l = y_max-y_min
-   
-   
-    
-    del_x = int(10000*(x_max-x_min)/3.999)
-    del_y = int(10000*(y_max-y_min)/2.999)
-    xyz[:,0] *= 1000000
-    xyz[:,1] *= 1000000
-    xyz[:,0] -= x_min
-    xyz[:,0] /= del_x
-    xyz[:,1] -= y_min
-    xyz[:,1] /= del_y
-    xyz = xyz[:,:2].astype('int32')
-    xyz[:,0] += -xyz[:,0].min()
-    xyz[:,1] += -xyz[:,1].min()
-    print (x_min,x_max,(x_max-x_min)/4)
-    print xyz[:,0].max()
-    print xyz[:,1].max()
-
-    myrgb = np.zeros((300,400,3))
-    myrgb -= 1
-    myrgb[xyz[:,1],xyz[:,0]]=rgb[:,1,:3]
+    myrgb=np.reshape(rgb[:,1,:3],(480,640,3))
     print len(myrgb[myrgb[:,:,0] != -1])
-    #publish_image(myrgb.astype('uint8'))
-    myrgb =myrgb.reshape((120000,3))
-    myz = np.zeros((300,400))
-    myz[xyz[:,1],xyz[:,0]]=xyzo[:,2]
+    publish_image(myrgb.astype('uint8'))
+   
 
-    myxyz = np.zeros((300,400,3))
-    myxyz[xyz[:,1],xyz[:,0]]=xyzo[:]
-    myxyz =myxyz.reshape((120000,3))
+    pcl2_temp.width=640*480
+    pcl2_temp.row_step=640*480*20
+        
+    new_pcl2 = np.array(xyz.data).reshape((-1,3,4))
+    new_pcl2 = np.hstack((new_pcl2, rgb))
+    new_pcl2 = new_pcl2.reshape(-1)
     
+    pcl2_temp.data = new_pcl2.tobytes()
+    pcl2_pub.publish(pcl2_temp)
+    
+
     #line_w = 0.0025
     #mask = ((xyz[:,0]>x_min+(x_l*(0.5-line_w))) &
     #       (xyz[:,0]<x_min+(x_l*(0.5+line_w)))) 
@@ -214,7 +205,7 @@ def new_pcl2(pcl2):
         pcl2_pub.publish(pcl2_temp)
     
 rospy.init_node('pcl2_pub_example')
-rospy.Subscriber('/camera/depth/color/points',PointCloud2,new_pcl2,queue_size=1)
+rospy.Subscriber('/camera/depth_registered/points',PointCloud2,new_pcl2,queue_size=1)
 pcl2_pub = rospy.Publisher('my_pcl2',PointCloud2,queue_size=1)
 img_pub = rospy.Publisher('pcl2_image',Image,queue_size=1)
 try:
