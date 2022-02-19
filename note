@@ -3,3 +3,5 @@ git config --local -e
 [user]
     name = homingjui
     email = richard.93600@gmail.com
+
+sudo apt-get install ros-melodic-rgbd-launch
