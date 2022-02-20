@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="fdilink_ahrs" name="ahrs_driver" type="ahrs_driver" output="screen" >
+  </node>
+</launch> 
