@@ -5,3 +5,8 @@ git config --local -e
     email = richard.93600@gmail.com
 
 sudo apt-get install ros-melodic-rgbd-launch
+
+rs-enumerate-devices
+
+roslaunch ros_tcp_endpoint endpoint.launch tcp_ip:=192.168.177.214 tcp_port:=10000
+catkin_make -DCATKIN_WHITELIST_PACKAGES=unity_robotics_demo_msgs

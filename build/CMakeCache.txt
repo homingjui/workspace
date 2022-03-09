@@ -58,7 +58,7 @@ CATKIN_SKIP_TESTING:BOOL=OFF
 CATKIN_SYMLINK_INSTALL:BOOL=OFF
 
 //List of ';' separated packages to build
-CATKIN_WHITELIST_PACKAGES:STRING=fdilink_ahrs
+CATKIN_WHITELIST_PACKAGES:STRING=unity_robotics_demo_msgs
 
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
@@ -433,7 +433,7 @@ image_geometry_DIR:PATH=/opt/ros/melodic/share/image_geometry/cmake
 image_transport_DIR:PATH=/opt/ros/melodic/share/image_transport/cmake
 
 //Path to a library.
-lib:FILEPATH=/opt/ros/melodic/lib/libserial.so
+lib:FILEPATH=/opt/ros/melodic/lib/librostime.so
 
 //The directory containing a CMake configuration file for message_filters.
 message_filters_DIR:PATH=/opt/ros/melodic/share/message_filters/cmake
@@ -455,6 +455,12 @@ project_BINARY_DIR:STATIC=/home/isp/Desktop/workspace/build/project
 
 //Value Computed by CMake
 project_SOURCE_DIR:STATIC=/home/isp/Desktop/workspace/src/project
+
+//Value Computed by CMake
+ros_tcp_endpoint_BINARY_DIR:STATIC=/home/isp/Desktop/workspace/build/ROS-TCP-Endpoint
+
+//Value Computed by CMake
+ros_tcp_endpoint_SOURCE_DIR:STATIC=/home/isp/Desktop/workspace/src/ROS-TCP-Endpoint
 
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/melodic/share/rosconsole/cmake
@@ -569,6 +575,12 @@ turtlebot_rapps_BINARY_DIR:STATIC=/home/isp/Desktop/workspace/build/turtlebot_ap
 
 //Value Computed by CMake
 turtlebot_rapps_SOURCE_DIR:STATIC=/home/isp/Desktop/workspace/src/turtlebot_apps/turtlebot_rapps
+
+//Value Computed by CMake
+unity_robotics_demo_msgs_BINARY_DIR:STATIC=/home/isp/Desktop/workspace/build/unity_robotics_demo_msgs
+
+//Value Computed by CMake
+unity_robotics_demo_msgs_SOURCE_DIR:STATIC=/home/isp/Desktop/workspace/src/unity_robotics_demo_msgs
 
 //The directory containing a CMake configuration file for visualization_msgs.
 visualization_msgs_DIR:PATH=/opt/ros/melodic/share/visualization_msgs/cmake

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 import math
+import cv2
 import sys
 import struct
 import numpy as np
@@ -9,8 +10,9 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 import std_msgs.msg
 import sensor_msgs.point_cloud2 as pcl2
-import time
-import matplotlib.pyplot as plt 
+from time import time
+import matplotlib.pyplot as plt
+import cv_bridge
 #from scipy.fftpack import fft,fftfreq
 #from scipy.signal import kaiserord, lfilter, firwin, freqz
 #from scipy import signal
@@ -34,18 +36,8 @@ def publish_image(imgdata):
 
 def hex_to_float(a):
     a= ("{:0>2x}" * len(a)).format(*tuple(a[::-1]))
-#    print a
     return struct.unpack('!f', a.decode('hex'))[0]
 
-
-#sigma = np.zeros((60,3))
-sigma = []
-del_t = 0
-t_rec = []
-filtera=[]
-filterb=[]
-ori = []
-filtn = 'a'
 
 def myfilter(arr):
         
@@ -66,9 +58,14 @@ def myfilter(arr):
         return y[-2]
 
 
+mytime=time()
+
 def new_pcl2(pcl2):
-    global del_t,t_rec,filtera,filterb,ori
+    global mytime
     print ""
+    fps=round(1/(time()-mytime),3)
+    mytime=time()
+    
     pcl2_temp=PointCloud2()
     pcl2_temp.header=pcl2.header
     pcl2_temp.width=pcl2.width
@@ -82,16 +79,20 @@ def new_pcl2(pcl2):
     height = pcl2.height
     pcl2_temp.row_step=width*height*20
 
-    start = time.time()
     point_arr = np.ndarray(buffer=pcl2.data,dtype=np.uint8,
             shape=(width*height,pcl2.point_step/4,4))
     point_arr=point_arr[:,:5]
-    #print(point_arr[0])
-    
+
     rgb = np.array(point_arr[:,-2:])
+    myrgb=np.reshape(rgb[:,1,:3],(height,width,3))
+    #myrgb.dtype=uint8
+    myrgb=cv2.putText(myrgb, "fps:"+str(fps), (10, 30), 
+                        cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 0), 2)
+    myrgb=myrgb.get()
+    publish_image(myrgb)
+    
+    
     xyz_hex = np.zeros((width*height,3),dtype=np.uint32)
-
-
     xyz_hex[:,:]=point_arr[:,:3,-1]*256
     xyz_hex=(xyz_hex+point_arr[:,:3,-2])*256
     xyz_hex=(xyz_hex+point_arr[:,:3,-3])*256
@@ -102,7 +103,7 @@ def new_pcl2(pcl2):
     num = 1+(xyz_hex & 0x7FFFFF).astype('float64')/2**23
     xyz = sign*exp*num
     xyz = xyz.astype('float32') 
-
+    
     xyz[np.any(xyz==-np.inf,axis=1)]=np.nan
     xyz[np.any(xyz==np.inf,axis=1)]=np.nan
 
@@ -112,8 +113,6 @@ def new_pcl2(pcl2):
     xyz[:,1] /= xyz[:,2]
     xyz[:,2] /= xyz[:,2]
 
-    myrgb=np.reshape(rgb[:,1,:3],(height,width,3))
-    publish_image(myrgb.astype('uint8'))
    
 
         

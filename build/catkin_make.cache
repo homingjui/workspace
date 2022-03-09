@@ -1,2 +1,2 @@
-fdilink_ahrs-demo:project
+ROS-TCP-Endpoint:fdilink_ahrs-demo:project:unity_robotics_demo:unity_robotics_demo_msgs
 -DCATKIN_DEVEL_PREFIX=/home/isp/Desktop/workspace/devel -DCMAKE_INSTALL_PREFIX=/home/isp/Desktop/workspace/install -G Unix Makefiles

@@ -131,7 +131,7 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/isp/Desktop/workspace/build/gtest/cmake_install.cmake")
-  include("/home/isp/Desktop/workspace/build/fdilink_ahrs-demo/cmake_install.cmake")
+  include("/home/isp/Desktop/workspace/build/unity_robotics_demo_msgs/cmake_install.cmake")
 
 endif()
 
