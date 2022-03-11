@@ -6,6 +6,7 @@ import sys
 import struct
 import numpy as np
 from sensor_msgs.msg import PointCloud2
+from sensor_msgs.msg import PointField
 from sensor_msgs.msg import Image
 from std_msgs.msg import Header
 import std_msgs.msg
@@ -38,6 +39,13 @@ def hex_to_float(a):
     a= ("{:0>2x}" * len(a)).format(*tuple(a[::-1]))
     return struct.unpack('!f', a.decode('hex'))[0]
 
+def pcl_lable(xyz,rgb,x,y,d=200,r=255,g=255,b=255):
+
+    x_y = np.array(y)-x
+    for i in range(d):
+        xyz.append(x+(x_y/d)*i)
+        rgb.append([0,0,0,0,r,g,b,0])
+    return xyz,rgb
 
 def myfilter(arr):
         
@@ -57,6 +65,24 @@ def myfilter(arr):
         y = lfilter(taps, 1.0, arr[:,2])
         return y[-2]
 
+lable=PointCloud2()
+lable.header.frame_id="camera_color_optical_frame"
+lable.height=1
+lable.fields=[
+        PointField('x', 0, PointField.FLOAT32, 1),
+        PointField('y', 4, 7, 1),
+        PointField('z', 8, 7, 1),
+        PointField('rgb', 16, 7, 1)
+        ]
+lable.is_bigendian=False
+lable.point_step=20
+is_dense=False
+
+
+#lable.width=?
+#lable.row_step=?
+#lable.data=?
+
 
 mytime=time()
 
@@ -68,6 +94,7 @@ def new_pcl2(pcl2):
     
     pcl2_temp=PointCloud2()
     pcl2_temp.header=pcl2.header
+    #pcl2_temp.header.frame_id="mypcl2"
     pcl2_temp.width=pcl2.width
     pcl2_temp.height=pcl2.height
     pcl2_temp.fields=pcl2.fields
@@ -82,13 +109,23 @@ def new_pcl2(pcl2):
     point_arr = np.ndarray(buffer=pcl2.data,dtype=np.uint8,
             shape=(width*height,pcl2.point_step/4,4))
     point_arr=point_arr[:,:5]
+    #print(point_arr[0])
 
     rgb = np.array(point_arr[:,-2:])
     myrgb=np.reshape(rgb[:,1,:3],(height,width,3))
     #myrgb.dtype=uint8
+    hsv=cv2.cvtColor(myrgb, cv2.COLOR_BGR2HSV)
+    mask=cv2.inRange(hsv,np.array([30,50,50]),np.array([80,255,255]))
+    n,lables,stats,centroids=cv2.connectedComponentsWithStats(mask)
+    my_lable=np.where(stats==stats[1:,-1].max())[0][0]
+    #print(my_lable)
+    #print(stats[my_lable])
+    mask[lables!=my_lable]=0
+    print(np.shape(mask))
+    myrgb=cv2.bitwise_and(myrgb,myrgb,mask=mask)
     myrgb=cv2.putText(myrgb, "fps:"+str(fps), (10, 30), 
                         cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 0), 2)
-    myrgb=myrgb.get()
+    #myrgb=myrgb.get()
     publish_image(myrgb)
     
     
@@ -97,32 +134,76 @@ def new_pcl2(pcl2):
     xyz_hex=(xyz_hex+point_arr[:,:3,-2])*256
     xyz_hex=(xyz_hex+point_arr[:,:3,-3])*256
     xyz_hex=(xyz_hex+point_arr[:,:3,-4])
-
     sign = (-1)**(xyz_hex >>31).astype('int8')
     exp = 2**(((xyz_hex >> 23)&0xFF).astype('float64')-127)
     num = 1+(xyz_hex & 0x7FFFFF).astype('float64')/2**23
     xyz = sign*exp*num
     xyz = xyz.astype('float32') 
-    
     xyz[np.any(xyz==-np.inf,axis=1)]=np.nan
     xyz[np.any(xyz==np.inf,axis=1)]=np.nan
-
+    '''
     xyzo = np.array(xyz)
 
     xyz[:,0] /= xyz[:,2]
     xyz[:,1] /= xyz[:,2]
     xyz[:,2] /= xyz[:,2]
-
-   
-
         
     new_pcl2 = np.array(xyz.data).reshape((-1,3,4))
     new_pcl2 = np.hstack((new_pcl2, rgb))
     new_pcl2 = new_pcl2.reshape(-1)
-    
+    #print pcl2_temp 
     pcl2_temp.data = new_pcl2.tobytes()
     pcl2_pub.publish(pcl2_temp)
+    '''
+    lable_xyz=[]
+    lable_rgb=[]
+    '''
+    xyz_max=np.nanmax(xyz,axis=0)
+    xyz_min=np.nanmin(xyz,axis=0)
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_max[1],xyz_max[2]])
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_max[1],xyz_max[2]])
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_min[1],xyz_max[2]])
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_min[1],xyz_max[2]])
+    '''
+    box_xyz=np.array(xyz).reshape((-1,3))
+    mask=mask.reshape((-1))
+    box_xyz=box_xyz[mask==255]
+    box_xyz=box_xyz[~np.isnan(box_xyz[:,0])]
+    print(len(box_xyz))
+    plt.subplot(131)
+    plt.hist(box_xyz[:,0]*100)
+    plt.subplot(132)
+    plt.hist(box_xyz[:,1]*100)
+    plt.subplot(133)
+    plt.hist(box_xyz[:,2]*100)
+    plt.show()
 
+
+    xyz_max=np.nanmax(box_xyz,axis=0)
+    xyz_min=np.nanmin(box_xyz,axis=0)
+    print(xyz_max,xyz_min)
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_max[1],xyz_max[2]])
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_max[1],xyz_max[2]])
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_min[1],xyz_max[2]])
+    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_min[1],xyz_max[2]])
+    
+
+    print(len(lable_xyz))
+    lable.width=len(lable_xyz)
+    lable.row_step=len(lable_xyz)*20
+    
+    lable_xyz = np.array(np.array(lable_xyz,dtype=np.float32).data).reshape((-1,3,4))
+    #print np.shape(lable_xyz)
+
+    lable_rgb=np.array(lable_rgb,dtype=np.uint8).reshape((-1,2,4))
+    #print(np.shape(lable_rgb))
+    
+    lable_data = np.hstack((lable_xyz, lable_rgb))
+    #print lable_data[0]
+    lable_data = lable_data.reshape(-1)
+    lable.data = lable_data.tobytes()
+    pcl2_pub.publish(lable)
+    
 
 rospy.init_node('pcl2_pub_example')
 rospy.Subscriber('/camera/depth_registered/points',PointCloud2,new_pcl2,queue_size=1)
