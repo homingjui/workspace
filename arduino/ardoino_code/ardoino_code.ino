@@ -1,7 +1,6 @@
 #include <Wire.h>
 #include <sbus.h>
-#define SBUS_PIN 13
-#include <JY901.h>
+#define SBUS_PIN A1
 #include <Servo.h>
 
 Servo Xservo;
@@ -9,8 +8,8 @@ Servo Yservo;
 
 int servo_x_min = 60;
 int servo_x_max = 170;
-int Xservo_pin = 12;
-int Yservo_pin = 11;
+int Xservo_pin = 9;
+int Yservo_pin = 10;
 
 #define SLAVE_ADDRESS 0x04
 int state[4] = {
@@ -67,8 +66,6 @@ boolean t8s5 = false;
 
 void setup() {
   Serial.begin(115200);
-  Serial2.begin(115200);
-  JY901.attach(Serial2);
   Wire.begin(SLAVE_ADDRESS);
 
   Wire.onReceive(receiveData);
@@ -88,48 +85,7 @@ void setup() {
 }
 int maxx = 0;
 void loop() {
-  ////////////////////////////////////////////////read jy61
-  JY901.receiveSerialData();
-  uint16_t accX = (JY901.getAccRawX());
-//  Serial.println(accX);
-  accXH = accX>>8;
-  accXL = (accX<<8)>>8;
-  uint16_t accY = (JY901.getAccRawY());
-//  Serial.println(accY);
-  accYH = accY>>8;
-  accYL = (accY<<8)>>8;
-  uint16_t accZ = (JY901.getAccRawZ());
-//  Serial.println(accZ);
-  accZH = accZ>>8;
-  accZL = (accZ<<8)>>8;
-  uint16_t gyroX = (JY901.getGyroX()*(32768.0/2000.0))+32768;
-//  Serial.println(gyroX);
-  gyroXH = gyroX>>8;
-  gyroXL = (gyroX<<8)>>8;
-  uint16_t gyroY = (JY901.getGyroY()*(32768.0/2000.0))+32768;
-//  Serial.println(gyroY);
-  gyroYH = gyroY>>8;
-  gyroYL = (gyroY<<8)>>8;
-  uint16_t gyroZ = (JY901.getGyroZ()*(32768.0/2000.0))+32768;
-//  Serial.println(gyroZ);
-  gyroZH = gyroZ>>8;
-  gyroZL = (gyroZ<<8)>>8;
-  uint16_t roll = (JY901.getRoll()*(32768.0/180.0))+32768;
-//  Serial.println(JY901.getRoll());
-//  Serial.println(roll);
-  rollH = roll>>8;
-  rollL = (roll<<8)>>8;
-  uint16_t pitch = (JY901.getPitch()*(32768.0/180.0))+32768;
-//  Serial.println(JY901.getPitch());
-//  Serial.println(pitch);
-  pitchH = pitch>>8;
-  pitchL = (pitch<<8)>>8;
-  uint16_t yaw = (JY901.getYaw()*(32768.0/180.0))+32768;
-//  Serial.println(JY901.getYaw());
-//  Serial.println(yaw);
-  yawH = yaw>>8;
-  yawL = (yaw<<8)>>8;
-
+ 
   Serial.println();
   /////////////////////////////////////////////////get t8s sbus
   if (sbus.failsafeActive()){

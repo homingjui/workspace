@@ -28,7 +28,7 @@ def publish_image(imgdata):
     image_temp.width=np.shape(imgdata)[1]
     image_temp.encoding='bgr8'
     image_temp.data=np.array(imgdata).tostring()
-    print(np.shape(imgdata))
+    #print(np.shape(imgdata))
     #image_temp.is_bigendian=True
     image_temp.header=header
     image_temp.step=np.shape(imgdata)[1]*3
@@ -39,13 +39,49 @@ def hex_to_float(a):
     a= ("{:0>2x}" * len(a)).format(*tuple(a[::-1]))
     return struct.unpack('!f', a.decode('hex'))[0]
 
-def pcl_lable(xyz,rgb,x,y,d=200,r=255,g=255,b=255):
+def pcl_lable(x,y,d=200,r=255,g=255,b=255):
 
     x_y = np.array(y)-x
-    for i in range(d):
-        xyz.append(x+(x_y/d)*i)
-        rgb.append([0,0,0,0,r,g,b,0])
+    xyz=np.repeat(np.arange(d,dtype=np.float32)/d,3).reshape((d,3))*x_y+x
+    rgb=np.repeat([[0,0,0,0,r,g,b,0]],d,axis=0).reshape((d,8))
     return xyz,rgb
+
+def pcl_box(xyz_min,xyz_max):
+    lable_xyz,lable_rgb=pcl_lable([xyz_min[0],xyz_max[1],xyz_max[2]],[xyz_max[0],xyz_max[1],xyz_max[2]])
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_min[1],xyz_max[2]],[xyz_max[0],xyz_max[1],xyz_max[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_max[1],xyz_min[2]],[xyz_max[0],xyz_max[1],xyz_max[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_min[0],xyz_min[1],xyz_max[2]],[xyz_min[0],xyz_min[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_min[0],xyz_max[1],xyz_min[2]],[xyz_min[0],xyz_min[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_min[1],xyz_min[2]],[xyz_min[0],xyz_min[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_min[0],xyz_max[1],xyz_max[2]],[xyz_min[0],xyz_max[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_max[1],xyz_min[2]],[xyz_min[0],xyz_max[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_max[1],xyz_min[2]],[xyz_max[0],xyz_min[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_min[1],xyz_max[2]],[xyz_max[0],xyz_min[1],xyz_min[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_min[0],xyz_max[1],xyz_max[2]],[xyz_min[0],xyz_min[1],xyz_max[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    xyz_t,rgb_t=pcl_lable([xyz_max[0],xyz_min[1],xyz_max[2]],[xyz_min[0],xyz_min[1],xyz_max[2]])
+    lable_xyz=np.vstack((lable_xyz,xyz_t))
+    lable_rgb=np.vstack((lable_rgb,rgb_t))
+    return lable_xyz,lable_rgb
 
 def myfilter(arr):
         
@@ -85,11 +121,13 @@ is_dense=False
 
 
 mytime=time()
+plt.show()
 
 def new_pcl2(pcl2):
     global mytime
-    print ""
+    #print ""
     fps=round(1/(time()-mytime),3)
+    #print(fps)
     mytime=time()
     
     pcl2_temp=PointCloud2()
@@ -121,33 +159,50 @@ def new_pcl2(pcl2):
     #print(my_lable)
     #print(stats[my_lable])
     mask[lables!=my_lable]=0
-    print(np.shape(mask))
+    #print(np.shape(mask))
     myrgb=cv2.bitwise_and(myrgb,myrgb,mask=mask)
     myrgb=cv2.putText(myrgb, "fps:"+str(fps), (10, 30), 
                         cv2.FONT_HERSHEY_SIMPLEX,1, (0, 255, 0), 2)
     #myrgb=myrgb.get()
     publish_image(myrgb)
     
-    
+   
+    a=time()
     xyz_hex = np.zeros((width*height,3),dtype=np.uint32)
+    #print(time()-a)
+    a=time()
     xyz_hex[:,:]=point_arr[:,:3,-1]*256
+    #print(time()-a)
+    a=time()
     xyz_hex=(xyz_hex+point_arr[:,:3,-2])*256
+    #print(time()-a)
+    a=time()
     xyz_hex=(xyz_hex+point_arr[:,:3,-3])*256
+    #print(time()-a)
+    a=time()
     xyz_hex=(xyz_hex+point_arr[:,:3,-4])
+    #print(time()-a)
+    a=time()
     sign = (-1)**(xyz_hex >>31).astype('int8')
-    exp = 2**(((xyz_hex >> 23)&0xFF).astype('float64')-127)
+    #print(time()-a)
+    a=time()
+    exp = np.power(2,((xyz_hex >> 23)&0xFF).astype('float64')-127)
+    #print(time()-a)
+    a=time()
     num = 1+(xyz_hex & 0x7FFFFF).astype('float64')/2**23
-    xyz = sign*exp*num
-    xyz = xyz.astype('float32') 
-    xyz[np.any(xyz==-np.inf,axis=1)]=np.nan
-    xyz[np.any(xyz==np.inf,axis=1)]=np.nan
+    #print(time()-a)
+    a=time()
+    xyz = (sign*exp*num).astype('float32') 
+    #print(time()-a)
+    a=time()
+    xyz[np.any(np.isinf(xyz),axis=1)]=np.nan
+    #print(time()-a)
+    a=time()
     '''
     xyzo = np.array(xyz)
-
     xyz[:,0] /= xyz[:,2]
     xyz[:,1] /= xyz[:,2]
     xyz[:,2] /= xyz[:,2]
-        
     new_pcl2 = np.array(xyz.data).reshape((-1,3,4))
     new_pcl2 = np.hstack((new_pcl2, rgb))
     new_pcl2 = new_pcl2.reshape(-1)
@@ -155,40 +210,45 @@ def new_pcl2(pcl2):
     pcl2_temp.data = new_pcl2.tobytes()
     pcl2_pub.publish(pcl2_temp)
     '''
-    lable_xyz=[]
-    lable_rgb=[]
-    '''
-    xyz_max=np.nanmax(xyz,axis=0)
-    xyz_min=np.nanmin(xyz,axis=0)
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_max[1],xyz_max[2]])
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_max[1],xyz_max[2]])
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_min[1],xyz_max[2]])
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_min[1],xyz_max[2]])
-    '''
+    
     box_xyz=np.array(xyz).reshape((-1,3))
     mask=mask.reshape((-1))
     box_xyz=box_xyz[mask==255]
     box_xyz=box_xyz[~np.isnan(box_xyz[:,0])]
-    print(len(box_xyz))
-    plt.subplot(131)
-    plt.hist(box_xyz[:,0]*100)
-    plt.subplot(132)
-    plt.hist(box_xyz[:,1]*100)
-    plt.subplot(133)
-    plt.hist(box_xyz[:,2]*100)
-    plt.show()
+    #print(len(box_xyz))
 
+    for i in range(3):
+        q1=np.quantile(box_xyz[:,i],0.25)
+        q3=np.quantile(box_xyz[:,i],0.75)
+        irq=q3-q1
+        box_xyz=box_xyz[box_xyz[:,i]>(q1-1.5*irq)]
+        box_xyz=box_xyz[box_xyz[:,i]<(q3+1.5*irq)]
+
+    #print(len(box_xyz))
+
+    '''
+    plt.subplot(231)
+    plt.hist(box_xyz[:,0]*100)
+    plt.subplot(232)
+    plt.hist(box_xyz[:,1]*100)
+    plt.subplot(233)
+    plt.hist(box_xyz[:,2]*100)
+    plt.subplot(234)
+    plt.boxplot(box_xyz[:,0]*100)
+    plt.subplot(235)
+    plt.boxplot(box_xyz[:,1]*100)
+    plt.subplot(236)
+    plt.boxplot(box_xyz[:,2]*100)
+    plt.draw()
+    plt.pause(0.001)
+    plt.clf()
+    '''
 
     xyz_max=np.nanmax(box_xyz,axis=0)
     xyz_min=np.nanmin(box_xyz,axis=0)
-    print(xyz_max,xyz_min)
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_max[1],xyz_max[2]])
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_max[1],xyz_max[2]])
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_max[0],xyz_min[1],xyz_max[2]])
-    lable_xyz,lable_rgb=pcl_lable(lable_xyz,lable_rgb,[0.0, 0.0, 0.0],[xyz_min[0],xyz_min[1],xyz_max[2]])
-    
+    lable_xyz,lable_rgb=pcl_box(xyz_min,xyz_max)
 
-    print(len(lable_xyz))
+    #print(len(lable_xyz))
     lable.width=len(lable_xyz)
     lable.row_step=len(lable_xyz)*20
     
