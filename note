@@ -14,3 +14,5 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES=unity_robotics_demo_msgs
 rostopic echo /camera/depth_registered/points | grep frame_id
 
 https://github.com/fdivitto/sbus
+
+sudo usermod -a -G dialout <username> 

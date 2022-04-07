@@ -11,14 +11,6 @@ ros/ros.h
 /home/isp/Desktop/workspace/src/rplidar_ros/src/ros/ros.h
 sensor_msgs/LaserScan.h
 /home/isp/Desktop/workspace/src/rplidar_ros/src/sensor_msgs/LaserScan.h
-iostream
--
-fstream
--
-sstream
--
-stdio.h
--
 
 /opt/ros/melodic/include/ros/advertise_options.h
 ros/forwards.h

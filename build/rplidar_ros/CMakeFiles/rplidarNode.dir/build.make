@@ -201,6 +201,126 @@ rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o.provides: rp
 rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o.provides.build: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o
 
 
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o: rplidar_ros/CMakeFiles/rplidarNode.dir/flags.make
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o: /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_crc.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o -c /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_crc.cpp
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.i"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_crc.cpp > CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.i
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.s"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_crc.cpp -o CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.s
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.requires:
+
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.requires
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.provides: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.requires
+	$(MAKE) -f rplidar_ros/CMakeFiles/rplidarNode.dir/build.make rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.provides.build
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.provides
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.provides.build: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o
+
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o: rplidar_ros/CMakeFiles/rplidarNode.dir/flags.make
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o: /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_lidar_driver.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o -c /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_lidar_driver.cpp
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.i"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_lidar_driver.cpp > CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.i
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.s"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_lidar_driver.cpp -o CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.s
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.requires:
+
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.requires
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.provides: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.requires
+	$(MAKE) -f rplidar_ros/CMakeFiles/rplidarNode.dir/build.make rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.provides.build
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.provides
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.provides.build: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o
+
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o: rplidar_ros/CMakeFiles/rplidarNode.dir/flags.make
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o: /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_serial_channel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o -c /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_serial_channel.cpp
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.i"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_serial_channel.cpp > CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.i
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.s"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_serial_channel.cpp -o CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.s
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.requires:
+
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.requires
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.provides: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.requires
+	$(MAKE) -f rplidar_ros/CMakeFiles/rplidarNode.dir/build.make rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.provides.build
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.provides
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.provides.build: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o
+
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o: rplidar_ros/CMakeFiles/rplidarNode.dir/flags.make
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o: /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_tcp_channel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o -c /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_tcp_channel.cpp
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.i"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_tcp_channel.cpp > CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.i
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.s"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_tcp_channel.cpp -o CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.s
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.requires:
+
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.requires
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.provides: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.requires
+	$(MAKE) -f rplidar_ros/CMakeFiles/rplidarNode.dir/build.make rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.provides.build
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.provides
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.provides.build: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o
+
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o: rplidar_ros/CMakeFiles/rplidarNode.dir/flags.make
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o: /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_udp_channel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o -c /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_udp_channel.cpp
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.i"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_udp_channel.cpp > CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.i
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.s"
+	cd /home/isp/Desktop/workspace/build/rplidar_ros && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isp/Desktop/workspace/src/rplidar_ros/sdk/src/sl_udp_channel.cpp -o CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.s
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.requires:
+
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.requires
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.provides: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.requires
+	$(MAKE) -f rplidar_ros/CMakeFiles/rplidarNode.dir/build.make rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.provides.build
+.PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.provides
+
+rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.provides.build: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o
+
+
 # Object files for target rplidarNode
 rplidarNode_OBJECTS = \
 "CMakeFiles/rplidarNode.dir/src/node.cpp.o" \
@@ -208,7 +328,12 @@ rplidarNode_OBJECTS = \
 "CMakeFiles/rplidarNode.dir/sdk/src/arch/linux/net_socket.cpp.o" \
 "CMakeFiles/rplidarNode.dir/sdk/src/arch/linux/timer.cpp.o" \
 "CMakeFiles/rplidarNode.dir/sdk/src/hal/thread.cpp.o" \
-"CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o"
+"CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o" \
+"CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o" \
+"CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o" \
+"CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o" \
+"CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o" \
+"CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o"
 
 # External object files for target rplidarNode
 rplidarNode_EXTERNAL_OBJECTS =
@@ -219,10 +344,14 @@ rplidarNode_EXTERNAL_OBJECTS =
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/arch/linux/timer.cpp.o
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/hal/thread.cpp.o
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o
+/home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o
+/home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o
+/home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o
+/home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o
+/home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/build.make
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /opt/ros/melodic/lib/libroscpp.so
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /usr/lib/aarch64-linux-gnu/libboost_filesystem.so
-/home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /usr/lib/aarch64-linux-gnu/libboost_signals.so
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /opt/ros/melodic/lib/libxmlrpcpp.so
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /opt/ros/melodic/lib/librosconsole.so
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /opt/ros/melodic/lib/librosconsole_log4cxx.so
@@ -240,7 +369,7 @@ rplidarNode_EXTERNAL_OBJECTS =
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /usr/lib/aarch64-linux-gnu/libpthread.so
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: /usr/lib/aarch64-linux-gnu/libconsole_bridge.so.0.4
 /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode: rplidar_ros/CMakeFiles/rplidarNode.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/isp/Desktop/workspace/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable /home/isp/Desktop/workspace/devel/lib/rplidar_ros/rplidarNode"
 	cd /home/isp/Desktop/workspace/build/rplidar_ros && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rplidarNode.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -254,6 +383,11 @@ rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarN
 rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/arch/linux/timer.cpp.o.requires
 rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/hal/thread.cpp.o.requires
 rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/rplidar_driver.cpp.o.requires
+rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_crc.cpp.o.requires
+rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_lidar_driver.cpp.o.requires
+rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_serial_channel.cpp.o.requires
+rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_tcp_channel.cpp.o.requires
+rplidar_ros/CMakeFiles/rplidarNode.dir/requires: rplidar_ros/CMakeFiles/rplidarNode.dir/sdk/src/sl_udp_channel.cpp.o.requires
 
 .PHONY : rplidar_ros/CMakeFiles/rplidarNode.dir/requires
 

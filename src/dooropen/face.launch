@@ -1,3 +1,0 @@
-<launch>
-  <node name="face" pkg="dooropen" type="face.py" output="screen" />
-</launch>
