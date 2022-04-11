@@ -40,7 +40,7 @@
 
   <arg name="enable_pointcloud"   default="false"/>
   <arg name="enable_sync"         default="true"/>
-  <arg name="align_depth"         default="false"/>
+  <arg name="align_depth"         default="true"/>
   <arg name="filters"             default=""/>
 
   <arg name="publish_tf"          default="true"/>

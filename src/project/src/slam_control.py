@@ -109,7 +109,7 @@ def draw():
     #kernel = np.ones((5,5), np.uint8)
     #img = cv2.dilate(img, kernel, iterations = 2)
 
-    rad_angle_n = angle_n*np.pi/180
+    #rad_angle_n = angle_n*np.pi/180
     
 
 ###############    draw 360 scanline   ####################
@@ -147,7 +147,7 @@ def draw():
             except OverflowError:
                 rospy.loginfo("get inf s")
                 rospy.loginfo(len_degs[i])
-    if True:
+    if False:
         #rospy.loginfo(np.shape(len_deg))
         for i in range(len(len_deg)):
             if len_deg[i]==float('inf'):
@@ -165,7 +165,7 @@ def draw():
     check_r = ((np.arctan((car_w/2)/crash_range)/np.pi)*180)*0.8
     #rospy.loginfo(check_r)
     #if rospy.get_param("/draw_scan_adge"):
-    if True:
+    if False:
         #rospy.loginfo(angle_min)
         for i in range(int(check_r)):
             if len_deg[i]==float("inf"):
@@ -197,8 +197,8 @@ def draw():
                 rospy.loginfo(len_deg[i*-1-1])
     
 
-    if not rospy.get_param("/turning"):
-    #if False:
+    #if not rospy.get_param("/turning"):
+    if False:
         if len_deg[:int(check_r)].min() < crash_range or len_deg[int(-check_r):].min() < crash_range :
             rospy.loginfo("crash!!")
             ok_len = (car_w*1.2)/np.sin( ( (3*check_r) /180) *np.pi)
@@ -243,7 +243,7 @@ def draw():
     cv2.circle(img, (int(map_x+rout[now_dot+1,0]/res),int(map_y+rout[now_dot+1,1]/res)),int(1+dot_size),(100, 100, 255), -1)
 ####################    draw rout   ####################
     #if rospy.get_param("/draw_rout"):
-    if True:
+    if False:
         for i in range(len(rout)-1):
             cv2.line(img, (int(map_x+rout[i,0]/res),int(map_y+rout[i,1]/res)),
                           (int(map_x+rout[i+1,0]/res),int(map_y+rout[i+1,1]/res)),

@@ -12,8 +12,8 @@
     args="5 project slam_cartographer.launch"
     name="timed_roslaunch" />
  
-  <include file="rs_rgbd.launch" /> 
-  <include file="imu.launch" /> 
+  <include file="$(find project)/launch/rs_rgbd.launch" /> 
+  <include file="$(find project)/launch/imu.launch" /> 
     
   <param name="/offset" type="int" value="-10" />
   <param name="/turning" type="bool" value="False" />
@@ -27,12 +27,16 @@
   <param name="/img_flip" type="bool" value="True" />
 
 
-  <!--node name="gps_reader" pkg="project" type="gps_reader.py" output="screen" /-->
+  <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen"/> 
+
+  <node name="gps_reader" pkg="project" type="gps_reader.py" output="screen" />
+  <node name="sql_dender" pkg="project" type="sql_send.py" output="screen" />
+  <node name="slam_img" pkg="project" type="slam_img.py" output="screen" />
   <!--node name="slam_control" pkg="project" type="slam_control.py" output="screen" /-->
   <!--node name="realsense_img" pkg="project" type="realsense_img.py" output="screen" /-->
   <!--node name="auto_motion" pkg="project" type="auto_motion.py" output="screen" /-->
   <!--node name="node_arduino" pkg="project" type="node_arduino.py" output="screen" /-->
-  <!--node name="image_stream" pkg="project" type="git_stream.py" output="screen" /-->
+  <node name="image_stream" pkg="project" type="git_stream.py" output="screen" />
   <!--node name="tcp_sender" pkg="project" type="tcp_sender.py" output="screen" /-->
 
 </launch>

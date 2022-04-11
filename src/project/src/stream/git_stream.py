@@ -36,46 +36,43 @@ def update_pos(data):
 def yolo_image(data):
     global fram
     if show_img == 'yolo':
-        #t1 = time.time()
         img = np.ndarray(buffer=data.data,dtype=np.uint8,shape=(data.height,data.width,3))
         fram = simplejpeg.encode_jpeg(img)
-        #array = list(data.data)
-        #img = np.array(array,np.float32)
-        #img = img.reshape(data.height,data.width,3)
-        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        #rospy.loginfo(np.shape(img))
-        #fram = cv2.imencode(".jpg",img)[1].tobytes()
-        #print(time.time() - t1)
         event.set()
 
+def getRGBD(data):
+    global RGBD
+    
+    depth_img = np.frombuffer(data.data, dtype=np.uint8).reshape(data.height, data.width, -1)
+    depth = np.zeros((data.height, data.width), dtype=np.float32)
+    depth[:,:] = depth_img[:,:,1]
+    depth *= 255
+    depth += depth_img[:,:,0]
+    depth /= depth.max()
+    depth *= 255
+    depth = depth.astype(np.uint8) 
+    depth=cv2.cvtColor(depth, cv2.COLOR_GRAY2RGB)
+    RGBD = simplejpeg.encode_jpeg(depth)
+    event.set()
 
 def on_image(data):
     global fram
-    if show_img == 'slam':
-        img = np.ndarray(buffer=data.data,dtype=np.uint8,shape=(data.height,data.width,3))
-        fram = simplejpeg.encode_jpeg(img)
-        #t1 = time.time()
-        #array = list(data.data)
-        #img = np.array(array,np.float32)
-        #img = img.reshape(data.height,data.width,3)
-        #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        #rospy.loginfo(np.shape(img))
-        #fram = cv2.imencode(".jpg",img)[1].tobytes()
-        #print(time.time() - t1)
-        event.set()
+    img = np.ndarray(buffer=data.data,dtype=np.uint8,shape=(data.height,data.width,3))
+    fram = simplejpeg.encode_jpeg(img)
+    event.set()
 
 def getRGB(data):
-        global RGB
-        #RGB = np.frombuffer(data.data, dtype=np.uint8).reshape(data.height, data.width, -1)
-        img = np.ndarray(buffer=data.data,dtype=np.uint8,shape=(data.height,data.width,3))
-        RGB = simplejpeg.encode_jpeg(img)
-        event.set()
+    global RGB
+    img = np.ndarray(buffer=data.data,dtype=np.uint8,shape=(data.height,data.width,3))
+    RGB = simplejpeg.encode_jpeg(img)
+    event.set()
 
 Thread(target=lambda: rospy.init_node('image_stream', disable_signals=True)).start()
-rospy.Subscriber('/rs_image_raw',Image,getRGB)
+rospy.Subscriber('/camera/color/image_raw',Image,getRGB)
+rospy.Subscriber('/camera/aligned_depth_to_color/image_raw',Image,getRGBD)
 rospy.Subscriber("/my_image_raw",Image, on_image)
-rospy.Subscriber("/yolo_image_raw",Image, yolo_image)
-rospy.Subscriber('/tf',TFMessage,update_pos)
+#rospy.Subscriber("/yolo_image_raw",Image, yolo_image)
+#rospy.Subscriber('/tf',TFMessage,update_pos)
 
 app = Flask(__name__)
 
@@ -90,26 +87,27 @@ def index_slam():
     show_img = 'slam'
     return render_template('index.html')
 
-@app.route('/yolo')
-def index_yolo():
-    global show_img
-    show_img = 'yolo'
-    return render_template('index.html')
 
-
-@app.route('/tf')
-def send():
-    rospy.loginfo(tf_str)
-    return tf_str
-
-def gen():
-    global t
+def gen(t='slam'):
     while True:
-        if 'fram'in globals():
+        if t=='slam' and  'fram'in globals():
             event.wait()
             event.clear()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + fram + b'\r\n')
+        elif t=='rgb' and 'RGB'in globals():
+            event.wait()
+            event.clear()
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + RGB + b'\r\n')
+        elif t=='rgbd' and 'RGBD'in globals():
+            event.wait()
+            event.clear()
+            yield (b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + RGBD + b'\r\n')
+
+
+
         else:
             img = np.zeros((500,500,3),dtype=np.uint8)
             cv2.putText(img, 'no img QQ', (50, 300), cv2.FONT_HERSHEY_PLAIN,
@@ -118,50 +116,20 @@ def gen():
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + framx + b'\r\n')
             
-def gen_cam():
-    while True:
-        if 'RGB'in globals():
-            event.wait()
-            event.clear()
-            yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + RGB + b'\r\n')
-        else:
-            img = np.zeros((500,500,3),dtype=np.uint8)
-            cv2.putText(img, 'no cam img', (50, 300), cv2.FONT_HERSHEY_PLAIN,
-                        4.5, (240, 3, int(time.time()*100)%255), 5, cv2.LINE_AA)
-            framx = simplejpeg.encode_jpeg(img)
-            yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + framx + b'\r\n')
-            
-def gen_slam():
-    while True:
-        if 'fram'in globals():
-            event.wait()
-            event.clear()
-            yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + fram + b'\r\n')
-        else:
-            img = np.zeros((500,500,3),dtype=np.uint8)
-            cv2.putText(img, 'no slam img', (50, 300), cv2.FONT_HERSHEY_PLAIN,
-                    4.5, (int(time.time()*100)%255, 109, 201), 5, cv2.LINE_AA)
-            framx = simplejpeg.encode_jpeg(img)
-            yield (b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + framx + b'\r\n')
 
-
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/camera_depth')
+def rgbd_graph():
+        return Response(gen('rgbd'),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/slam_graph')
 def slam_graph():
-        return Response(gen_slam(),
+        return Response(gen('slam'),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/camera')
 def camera():
-        return Response(gen_cam(),
+        return Response(gen('rgb'),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 

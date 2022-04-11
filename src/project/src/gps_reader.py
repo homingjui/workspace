@@ -17,12 +17,12 @@ try:
         while ser.in_waiting:
             data = ser.readline()
             status = data.split(",")[0]
-            #rospy.loginfo(data)
+            rospy.loginfo(data)
             gps.latitude=0
             gps.longitude=0
             gps.fix_code=0
             if not status == "$GNGGA":
-                pub.publish(gps)
+                #pub.publish(gps)
                 continue
             if not data.split(",")[2]:
                 pub.publish(gps)

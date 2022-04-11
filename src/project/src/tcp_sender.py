@@ -12,23 +12,19 @@ from sensor_msgs.msg import Imu
 import json
 
 
-xyz=0
 tf=0
 
-
-def update_pos(data):
-    global xyz
-    tf = data.transforms[0]
-    tfx = tf.transform.rotation.x
-    tfy = tf.transform.rotation.y
-    tfz = tf.transform.rotation.z
-    tfw = tf.transform.rotation.w
-    rot = Rotation.from_quat([tfx, tfy, tfz, tfw])
-    xyz = str(rot.as_euler('xyz'))
-    
 def update_tf(data):
     global tf
     tf = data
+
+def update_gps(data):
+
+
+def update_imu(data):
+
+
+def update_arduino(data):
 
 
 host = "192.168.8.101"
@@ -36,7 +32,7 @@ port = 3401
 
 rospy.init_node('tcp_sender')
 rospy.Subscriber('/tf',TFMessage,update_pos)
-rospy.Subscriber('arduino', arduino_msg, update_tf)
+
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((host, port))

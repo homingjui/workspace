@@ -6,6 +6,15 @@
 //Servo Xservo;
 Servo Yservo;
 bool debug=false;
+
+#include <ros.h>
+#include <std_msgs/UInt32.h>
+
+ros::NodeHandle  nh;
+
+std_msgs::UInt32 arduino_send;
+ros::Publisher chatter("arduino_send", &arduino_send);
+
 /*
 D11 -> 11
 D10 -> 10
@@ -74,7 +83,7 @@ unsigned long time;
 boolean t8s5 = false;
 
 void setup() {
-  Serial.begin(115200);
+  if(debug)Serial.begin(57600);
 
   
   Serial.println("pin init");
@@ -92,6 +101,9 @@ void setup() {
 
   Yservo.attach(Yservo_pin);
 //  Xservo.attach(Xservo_pin);/
+
+  nh.initNode();
+  nh.advertise(chatter);
 }
 int maxx = 0;
 void loop() {
@@ -137,7 +149,7 @@ void loop() {
   if( abs(t8s[0]-t8sss[0]) < abs(t8s[0]-t8ss[0]) ) t8ss[0]=t8sss[0];
   if( abs(t8s[1]-t8sss[1]) < abs(t8s[1]-t8ss[1]) ) t8ss[1]=t8sss[1];
   if( abs(t8s[2]-t8sss[2]) < abs(t8s[2]-t8ss[2]) ) t8ss[2]=t8sss[2];
-  if( abs(t8s[3]-t8sss[3]) < abs(t8s[3]-t8ss[3]) ) t8ss[3]=t8sss[3]; 
+  if( abs(t8s[3]-t8sss[3]) < abs(t8s[3]-t8ss[3]) ) t8ss[3]=t8sss[3];
   if( abs(t8s[4]-t8sss[4]) < abs(t8s[4]-t8ss[4]) ) t8ss[4]=t8sss[4];
   for (int i = 0; i < 8; i++) {
     Serial.print(t8ss[i]);
@@ -149,6 +161,11 @@ void loop() {
   Serial.print(",");
   Serial.print(analogRead(current_pin)*10);
   Serial.println();
+
+  arduino_send.data = map(analogRead(voltage_pin),620,900,1000,1500)*10000;
+  arduino_send.data += map(abs(t8ss[2]-1550),25,450,0,1000);
+  chatter.publish( &arduino_send );
+  nh.spinOnce();
   /////////////////////////////////////////////////set from nano
   if(t8ss[6] == 1005){
       set_left_motor();

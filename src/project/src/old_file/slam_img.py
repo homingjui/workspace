@@ -47,20 +47,13 @@ def update_map(data):
     h = data.info.height
     res = data.info.resolution
     map_pos = data.info.origin.position
+    draw()
 
 def update_scan(data):
-    global len_per_ndeg,angle_min,angle_n
-    header = data.header
-    ranges = data.ranges
-    #rospy.loginfo(header)
-    #rospy.loginfo(len(ranges))
-    len_per_deg = ranges[::4]
-    #rospy.loginfo(len(len_per_deg))
-    angle_n = 15
-    len_per_ndeg = len_per_deg[::angle_n]
-    #rospy.loginfo(len(len_per_45deg))
-    angle_min = data.angle_min
-    #rospy.loginfo(angle_min)
+    global lidar,ang_min,ang_inc
+    lidar = data.ranges
+    ang_min = data.angle_min
+    ang_inc = data.angle_increment
     draw()
 
 
@@ -87,19 +80,18 @@ def draw():
     img[:,:,:]=slam_map
     img[ (img[:,:,0]!=255) & (img[:,:,0]>=60)  ] = [255,0,0]
     
-    rad_angle_n = angle_n*math.pi/180
-    for i in range(len(len_per_ndeg)):
-        if len_per_ndeg[i]==float("inf"):
+    '''
+    for index,item in enumerate(lidar):
+        #lidar,ang_min,ang_inc
+        if item==float("inf"):
             continue
-        #rospy.loginfo(len_per_ndeg[i])
-        scan_col = 0
-        if len_per_ndeg[i] < 1:
+        if item < 1:
             scan_col = 255
         cv2.line(img, (int(x),int(y)), 
-                 (int(x+(len_per_ndeg[i]*math.cos(xyz[2]+angle_min+(rad_angle_n*i)))/res),
-                  int(y+(len_per_ndeg[i]*math.sin(xyz[2]+angle_min+(rad_angle_n*i)))/res)),
+                 (int(x+(item*math.cos(xyz[2]+ang_min+(ang_inc*index)))/res),
+                  int(y+(item*math.sin(xyz[2]+ang_min+(ang_inc*index)))/res)),
                   (scan_col, 255, 0), int(1+(dot_size)/5))
-
+    '''
     cv2.circle(img, (int(map_x),int(map_y)), int(1+dot_size),(0, 255, 255), -1)
     cv2.circle(img, (int(x),int(y)), int(1+dot_size),(0, 0, 255), -1)
     cv2.line(img, (int(x),int(y)), (int(x-5*dot_size*math.cos(xyz[2])),
@@ -111,7 +103,7 @@ def draw():
 
 try:
     rospy.init_node('image_pub')
-    rospy.Subscriber('/scan',LaserScan,update_scan)
+    #rospy.Subscriber('/scan',LaserScan,update_scan)
     rospy.Subscriber('/tf',TFMessage,update_pos)
     rospy.Subscriber('/map',OccupancyGrid,update_map)
     img_pub = rospy.Publisher('my_image_raw',Image,queue_size=1)
