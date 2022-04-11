@@ -22,7 +22,7 @@ def callback(data):
     data.orientation.w=1
     #print(xyz)
     pub.publish(data)
-rospy.init_node('listener', anonymous=True)
+rospy.init_node('xyzw2xyz', anonymous=True)
 rospy.Subscriber("/imu", Imu, callback)
 pub = rospy.Publisher('/myimu', Imu, queue_size=10)
 rospy.spin()

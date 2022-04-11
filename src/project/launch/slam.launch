@@ -1,6 +1,6 @@
 <launch>
   <node name="rplidarNode"          pkg="rplidar_ros"  type="rplidarNode" output="screen">
-  <param name="serial_port"         type="string" value="/dev/ttyUSB0"/>
+  <param name="serial_port"         type="string" value="/dev/rplidar"/>
   <param name="serial_baudrate"     type="int"    value="256000"/><!--A3 -->
   <param name="frame_id"            type="string" value="laser"/>
   <param name="inverted"            type="bool"   value="false"/>
@@ -12,7 +12,7 @@
     args="5 project slam_cartographer.launch"
     name="timed_roslaunch" />
 
-  <node name="slam_img" pkg="project" type="slam_img.py" output="screen" />
+  <!--node name="slam_img" pkg="project" type="slam_img.py" output="screen" /-->
 
 </launch>
 

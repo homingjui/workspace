@@ -1,4 +1,10 @@
 <launch>
   <node pkg="fdilink_ahrs" name="ahrs_driver" type="ahrs_driver" output="screen" >
   </node>
+
+    <param name="port"  value="/dev/imu"/>
+    <param name="imu_topic"  value="/imu"/>
+
+  <node name="xyzw2xyz" pkg="project" type="myimu.py" output="screen" />
+
 </launch> 

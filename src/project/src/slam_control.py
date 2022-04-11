@@ -3,7 +3,7 @@
 import rospy
 from project.msg import deg_msg,motor_msg
 from nav_msgs.msg import OccupancyGrid
-from sensor_msgs.msg import Image,LaserScan
+from sensor_msgs.msg import Image,LaserScan,Imu
 from std_msgs.msg import Header
 from tf2_msgs.msg import TFMessage
 import cv2
@@ -12,16 +12,12 @@ import math
 from scipy.spatial.transform import Rotation
 
 
-
-
 rout = np.array([[0,0],[0,5.5],[-3,5.5],[-3,4.5],[0,4.5],[0,0]])
-#rout = np.array([[0,0],[0,10]], dtype='f')
-len_avr = 12
-len_deg_array = np.zeros((len_avr,360))
-
+rospy.loginfo(rout)
 for i in range(1,len(rout)):
     rout[i]=[rout[i,0]*np.cos(np.pi/2)-rout[i,1]*np.sin(np.pi/2),
              rout[i,0]*np.sin(np.pi/2)+rout[i,1]*np.cos(np.pi/2)]
+rospy.loginfo(rout)
 
 setup=np.array([False,False,False])
 
@@ -54,7 +50,7 @@ def publish_image(imgdata):
 
 now_x,now_y=0,0
 def update_pos(data):
-    global now_x,now_y,xyz,last_x,last_y
+    global xyz,now_x,now_y,last_x,last_y
     setup[0]=True
     last_x,last_y=now_x,now_y
     tf = data.transforms[0]
@@ -80,40 +76,26 @@ def update_map(data):
     map_pos = data.info.origin.position
 
 def update_scan(data):
-    global len_per_ndeg,angle_min,angle_n,len_deg,len_deg_array
+    global lidar,angle_min,angle_increment
     setup[2]=True
-    header = data.header
-    ranges = data.ranges
-    #rospy.loginfo(header)
-    #rospy.loginfo(len(ranges))
-    len_deg = np.array(ranges[::4])
-    len_deg_array=np.vstack((len_deg_array[1:],len_deg))
-    #rospy.loginfo(len(len_per_deg))
-    angle_n = 5
-    len_per_ndeg = np.array(len_deg[::angle_n])
-    #rospy.loginfo(len(len_per_45deg))
+    lidar = data.ranges
+    #rospy.loginfo(1/data.scan_time)
     angle_min = data.angle_min
-    #rospy.loginfo(angle_min)
-    #draw()
+    angle_increment = data.angle_increment
 
-#angle_min: -3.1241390705108643
-#angle_max: 3.1415927410125732
-#angle_increment: 0.004354226402938366
-#time_increment: 5.4129151976667345e-05
-#scan_time: 0.07789184898138046
-#range_min: 0.15000000596046448
-#range_max: 25.0
-#ranges:
+def update_imu(data):
+    x=data.orientation
 
 def draw():
     global rout,now_dot
     #rospy.loginfo(np.shape(slam_map))
-    
+
     map_x = -map_pos.x / res
     map_y = -map_pos.y / res
 
     x = (-map_pos.x+now_x) / res
     y = (-map_pos.y+now_y) / res
+
 
     dot_size = h/100
     img = np.zeros((h, w, 3), dtype=np.uint8)
@@ -277,6 +259,7 @@ try:
     rospy.init_node('slam_control')
     rospy.Subscriber('/scan',LaserScan,update_scan)
     rospy.Subscriber('/tf',TFMessage,update_pos)
+    rospy.Subscriber('/myimu',Imu,update_imu)
     rospy.Subscriber('/map',OccupancyGrid,update_map)
     img_pub = rospy.Publisher('my_image_raw',Image,queue_size=1)
     pub_deg = rospy.Publisher('revise_deg', deg_msg, queue_size=10)
