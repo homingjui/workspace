@@ -38,10 +38,10 @@ while not rospy.is_shutdown():
             if connection.is_connected():
                 print(lat,lng,voltage,speed)
                 db_Info = connection.get_server_info()
-                #print("version:",db_Info)
+                print("version:",db_Info)
 
                 cursor = connection.cursor()
-                send_str = "INSERT INTO car2 (lat,lng,power,water,speed) values(%s, %s, %s, %s, %s)"
+                send_str = "INSERT INTO car1 (lat,lng,power,water,speed) values(%s, %s, %s, %s, %s)"
                 new_data = (lat, lng, voltage, 0, speed)
                 cursor.execute(send_str, new_data)
                 connection.commit()

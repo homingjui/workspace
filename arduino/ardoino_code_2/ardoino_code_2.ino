@@ -163,7 +163,7 @@ void loop() {
   Serial.println();
 
   arduino_send.data = map(analogRead(voltage_pin),620,900,1000,1500)*10000;
-  arduino_send.data += map(abs(t8ss[2]-1550),25,450,0,1000);
+  arduino_send.data += map(abs(t8ss[2]-1550),0,450,0,1000);
   chatter.publish( &arduino_send );
   nh.spinOnce();
   /////////////////////////////////////////////////set from nano
